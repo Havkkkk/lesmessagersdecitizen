@@ -182,7 +182,6 @@
         function selectProduct(product) {
             document.getElementById("productName").value = product.commodity_name;
             populateSellLocations(product);
-            updatePrice(product);
         }
 
         function populateSellLocations(product) {
@@ -203,13 +202,15 @@
 
             if (uniqueLocations.length > 0) {
                 sellLocations.value = uniqueLocations[0];
-                updatePrice(product);
+                updatePrice();
             }
         }
 
-        function updatePrice(product) {
-            const sellLocations = document.getElementById("sellLocations").value;
-            const locationData = productData.find(p => p.terminal_name === sellLocations && p.commodity_name === product.commodity_name);
+        function updatePrice() {
+            const productName = document.getElementById("productName").value;
+            const sellLocation = document.getElementById("sellLocations").value;
+
+            const locationData = productData.find(p => p.terminal_name === sellLocation && p.commodity_name === productName);
             if (locationData) {
                 document.getElementById("price").value = locationData.price_sell.toLocaleString("fr-FR") + " UEC";
                 updateTotal();
@@ -240,8 +241,8 @@
                     <h3>${productName}</h3>
                     <p>Quantité (SCU) : ${scu}</p>
                     <p>Prix unitaire : ${price.toLocaleString("fr-FR")} UEC</p>
-                    <p>Total : ${total.toLocaleString("fr-FR")} UEC</p>
                     <p class="location">Où vendre : ${sellLocation}</p>
+                    <p>Total : ${total.toLocaleString("fr-FR")} UEC</p>
                     <button class="remove-button" onclick="removeProduct(this)">Supprimer ce produit</button>
                 `;
 
@@ -250,7 +251,6 @@
                 productList.push({ productName, scu, price, total, sellLocation });
                 updateFinalTotal();
 
-                // Réinitialiser les champs après ajout
                 document.getElementById("productName").value = "";
                 document.getElementById("scu").value = "";
                 document.getElementById("price").value = "";
@@ -265,7 +265,6 @@
 
             productItem.remove();
 
-            // Retirer le produit de la liste et mettre à jour le total final
             productList = productList.filter(p => p.total !== total);
             updateFinalTotal();
         }
