@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculateur de Produits avec API et Suggestions</title>
+    <title>Calculateur de Produits avec API</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -16,18 +16,16 @@
             flex-direction: column;
         }
         .container {
-            max-width: 70%;
+            width: 70%;
             margin: 20px auto;
             background-color: rgba(255, 255, 255, 0.9);
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.3);
-            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
         }
         h1 {
             text-align: center;
             color: #333;
-            margin-bottom: 20px;
         }
         .form-group {
             margin-bottom: 20px;
@@ -35,11 +33,11 @@
         }
         label {
             display: block;
-            margin: 8px 0 4px;
+            margin-bottom: 5px;
             font-weight: bold;
         }
         input[type="text"], select, button {
-            width: calc(100% - 22px);
+            width: 100%;
             padding: 10px;
             margin-bottom: 10px;
             border: 1px solid #ccc;
@@ -54,10 +52,8 @@
             overflow-y: auto;
             background-color: #fff;
             z-index: 1000;
-            width: calc(100% - 22px);
+            width: 100%;
             box-sizing: border-box;
-            border-bottom-left-radius: 5px;
-            border-bottom-right-radius: 5px;
         }
         .autocomplete-suggestion {
             padding: 10px;
@@ -65,18 +61,6 @@
         }
         .autocomplete-suggestion:hover {
             background-color: #eee;
-        }
-        .result {
-            font-size: 1.2em;
-            font-weight: bold;
-            text-align: right;
-            margin-top: 10px;
-        }
-        .total {
-            font-size: 1.5em;
-            font-weight: bold;
-            text-align: center;
-            margin-top: 30px;
         }
         .product-list {
             display: flex;
@@ -95,9 +79,6 @@
         .product-item p {
             margin: 5px 0;
         }
-        .product-item h3 {
-            margin: 0;
-        }
         .product-item .location {
             font-style: italic;
         }
@@ -110,9 +91,6 @@
             border: none;
             border-radius: 5px;
             padding: 5px;
-            cursor: pointer;
-        }
-        button {
             cursor: pointer;
         }
         .footer {
@@ -139,7 +117,7 @@
 
         <div class="form-group">
             <label for="productName">Nom du produit :</label>
-            <input type="text" id="productName" placeholder="Entrez le nom du produit" oninput="showSuggestions()">
+            <input type="text" id="productName" placeholder="Entrez le nom du produit" oninput="fetchProductSuggestions()">
             <div id="suggestions" class="autocomplete-suggestions"></div>
         </div>
 
@@ -175,28 +153,24 @@
 
     <script>
         let productData = [];
-        let selectedProductData = null;
         let productList = [];
 
         async function fetchProductData() {
             try {
                 const response = await fetch('https://uexcorp.space/api/2.0/commodities_prices_all');
                 const result = await response.json();
-
-                if (result.data && Array.isArray(result.data)) {
-                    productData = result.data;
-                }
+                productData = result.data || [];
             } catch (error) {
                 console.error("Erreur lors de la récupération des données : ", error);
             }
         }
 
-        function showSuggestions() {
+        function fetchProductSuggestions() {
             const input = document.getElementById("productName").value.toLowerCase();
             const suggestionsContainer = document.getElementById("suggestions");
-            suggestionsContainer.innerHTML = "";  // Clear previous suggestions
+            suggestionsContainer.innerHTML = "";
 
-            if (input.length > 1 && Array.isArray(productData)) {
+            if (input.length > 1) {
                 const filteredProducts = productData.filter(product =>
                     product.commodity_name.toLowerCase().includes(input)
                 );
@@ -209,7 +183,7 @@
                     suggestion.onclick = () => {
                         const selectedProduct = filteredProducts.find(p => p.commodity_name === name);
                         selectProduct(selectedProduct);
-                        suggestionsContainer.innerHTML = "";  // Clear suggestions after selection
+                        suggestionsContainer.innerHTML = "";
                     };
                     suggestionsContainer.appendChild(suggestion);
                 });
@@ -217,43 +191,39 @@
         }
 
         function selectProduct(product) {
-            selectedProductData = product;
             document.getElementById("productName").value = product.commodity_name;
-            populateSellLocations();
-            updatePrice();
+            populateSellLocations(product);
+            updatePrice(product);
         }
 
-        function updatePrice() {
+        function populateSellLocations(product) {
             const sellLocations = document.getElementById("sellLocations");
-            const selectedLocation = sellLocations.value;
-            if (selectedLocation && selectedProductData) {
-                const locationData = productData.find(p => p.terminal_name === selectedLocation && p.commodity_name === selectedProductData.commodity_name);
-                if (locationData) {
-                    document.getElementById("price").value = locationData.price_sell.toLocaleString("fr-FR") + " UEC";
-                    selectedProductData.price_sell = locationData.price_sell;
-                    updateTotal();
-                }
+            sellLocations.innerHTML = "";
+
+            const productLocations = productData
+                .filter(p => p.commodity_name === product.commodity_name)
+                .map(p => p.terminal_name);
+
+            const uniqueLocations = [...new Set(productLocations)];
+            uniqueLocations.forEach(location => {
+                const option = document.createElement("option");
+                option.value = location;
+                option.textContent = location;
+                sellLocations.appendChild(option);
+            });
+
+            if (uniqueLocations.length > 0) {
+                sellLocations.value = uniqueLocations[0];
+                updatePrice(product);
             }
         }
 
-        function populateSellLocations() {
-            const sellLocations = document.getElementById("sellLocations");
-            sellLocations.innerHTML = "";  // Clear previous locations
-            if (selectedProductData) {
-                const productLocations = productData.filter(p => p.commodity_name === selectedProductData.commodity_name)
-                                                     .map(p => p.terminal_name);
-                const uniqueLocations = [...new Set(productLocations)];
-                uniqueLocations.forEach(location => {
-                    const option = document.createElement("option");
-                    option.value = location;
-                    option.textContent = location;
-                    sellLocations.appendChild(option);
-                });
-                // Automatically select the first location if available
-                if (uniqueLocations.length > 0) {
-                    sellLocations.value = uniqueLocations[0];
-                    updatePrice();
-                }
+        function updatePrice(product) {
+            const sellLocations = document.getElementById("sellLocations").value;
+            const locationData = productData.find(p => p.terminal_name === sellLocations && p.commodity_name === product.commodity_name);
+            if (locationData) {
+                document.getElementById("price").value = locationData.price_sell.toLocaleString("fr-FR") + " UEC";
+                updateTotal();
             }
         }
 
@@ -288,7 +258,6 @@
 
                 productListElement.appendChild(productItem);
 
-                // Ajouter le produit à la liste des produits
                 productList.push({ productName, scu, price, total, sellLocation });
                 updateFinalTotal();
 
@@ -298,7 +267,6 @@
                 document.getElementById("price").value = "";
                 document.getElementById("sellLocations").innerHTML = "";
                 document.getElementById("total").innerText = "Total : 0 UEC";
-                selectedProductData = null;
 
                 // Afficher le bouton "Tout effacer" si des produits ont été ajoutés
                 document.getElementById("clearButtonContainer").style.display = productList.length > 0 ? "block" : "none";
@@ -326,8 +294,7 @@
         }
 
         function clearProducts() {
-            const productListElement = document.getElementById("productList");
-            productListElement.innerHTML = "";
+            document.getElementById("productList").innerHTML = "";
             productList = [];
             updateFinalTotal();
 
@@ -335,7 +302,6 @@
             document.getElementById("clearButtonContainer").style.display = "none";
         }
 
-        // Fetch data when the page loads
         window.onload = fetchProductData;
     </script>
 </body>
