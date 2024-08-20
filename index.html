@@ -248,8 +248,9 @@
         function populateSellLocations() {
             const sellLocations = document.getElementById("sellLocations");
             sellLocations.innerHTML = "";  // Clear previous locations
-            const productLocations = productData.filter(p => p.commodity_name === selectedProductData.commodity_name);
-            const uniqueLocations = [...new Set(productLocations.map(p => p.terminal_name))];
+            const productLocations = productData.filter(p => p.commodity_name === selectedProductData.commodity_name)
+                                                 .map(p => p.terminal_name);
+            const uniqueLocations = [...new Set(productLocations)];
             uniqueLocations.forEach(location => {
                 const option = document.createElement("option");
                 option.value = location;
