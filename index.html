@@ -108,13 +108,18 @@
         async function fetchProductData() {
             try {
                 const response = await fetch('https://uexcorp.space/api/2.0/commodities_prices_all');
-                productData = await response.json();
+                const data = await response.json();
 
-                if (productData.length === 0) {
-                    console.error('No data found');
+                // Assurez-vous que data est un tableau
+                if (Array.isArray(data)) {
+                    productData = data;
+                } else {
+                    console.error('Les données récupérées ne sont pas un tableau:', data);
                 }
+
+                console.log('Données récupérées:', productData);  // Pour vérifier les données dans la console
             } catch (error) {
-                console.error('Error fetching the product data:', error);
+                console.error('Erreur lors de la récupération des données:', error);
             }
         }
 
@@ -123,7 +128,7 @@
             const suggestionsContainer = document.getElementById("suggestions");
             suggestionsContainer.innerHTML = "";  // Clear previous suggestions
 
-            if (input.length > 1) {  // Show suggestions if input length is greater than 1
+            if (input.length > 1 && Array.isArray(productData)) {  // Show suggestions if input length is greater than 1
                 const filteredProducts = productData.filter(product => product.commodity_name.toLowerCase().includes(input));
 
                 if (filteredProducts.length > 0) {
