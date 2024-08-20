@@ -101,11 +101,15 @@
             font-size: 1.2em;
             font-weight: bold;
         }
+        .product-item {
+            display: flex;
+            flex-direction: column;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Calculateur de Produitssssssss</h1>
+        <h1>Calculateur de Produits</h1>
 
         <div class="form-group">
             <label for="productName">Nom du produit :</label>
@@ -232,7 +236,7 @@
 
         // Fonction pour formater les nombres avec séparateurs de milliers et deux décimales
         function formatNumber(number) {
-            return new Intl.NumberFormat('fr-FR').format(number);
+            return new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(number);
         }
 
         // Fonction pour ajouter un produit à la liste
