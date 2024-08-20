@@ -102,13 +102,6 @@
             font-size: 1.2em;
             font-weight: bold;
         }
-        .clear-button-container {
-            text-align: center;
-            margin-top: 20px;
-        }
-        .clear-button-container button {
-            display: none;
-        }
     </style>
 </head>
 <body>
@@ -139,10 +132,6 @@
         <div class="result" id="total">Total : 0 UEC</div>
 
         <button id="addProductButton" onclick="addProduct()">Ajouter un produit</button>
-
-        <div class="clear-button-container" id="clearButtonContainer">
-            <button onclick="clearProducts()">Tout effacer</button>
-        </div>
 
         <div id="productList" class="product-list"></div>
     </div>
@@ -267,9 +256,6 @@
                 document.getElementById("price").value = "";
                 document.getElementById("sellLocations").innerHTML = "";
                 document.getElementById("total").innerText = "Total : 0 UEC";
-
-                // Afficher le bouton "Tout effacer" si des produits ont été ajoutés
-                document.getElementById("clearButtonContainer").style.display = productList.length > 0 ? "block" : "none";
             }
         }
 
@@ -282,23 +268,11 @@
             // Retirer le produit de la liste et mettre à jour le total final
             productList = productList.filter(p => p.total !== total);
             updateFinalTotal();
-
-            // Cacher le bouton "Tout effacer" si aucun produit n'est présent
-            document.getElementById("clearButtonContainer").style.display = productList.length > 0 ? "block" : "none";
         }
 
         function updateFinalTotal() {
             const finalTotal = productList.reduce((sum, product) => sum + product.total, 0);
             document.getElementById("finalTotal").innerText = "Total final : " + finalTotal.toLocaleString("fr-FR") + " UEC";
-        }
-
-        function clearProducts() {
-            document.getElementById("productList").innerHTML = "";
-            productList = [];
-            updateFinalTotal();
-
-            // Cacher le bouton "Tout effacer" après avoir effacé les produits
-            document.getElementById("clearButtonContainer").style.display = "none";
         }
 
         window.onload = fetchProductData;
