@@ -16,7 +16,7 @@
             flex-direction: column;
         }
         .container {
-            max-width: 1000px;
+            max-width: 70%;  /* Ajustement de la largeur */
             margin: 20px auto;
             background-color: rgba(255, 255, 255, 0.9);
             padding: 20px;
@@ -78,22 +78,18 @@
             text-align: center;
             margin-top: 30px;
         }
-        .product-carousel {
+        .product-list {
             display: flex;
-            overflow-x: auto;
-            white-space: nowrap;
-            padding: 10px 0;
+            flex-wrap: wrap;  /* Retour à la ligne lorsque nécessaire */
             gap: 20px;
-            max-height: 400px; /* Set a maximum height for the carousel */
         }
         .product-item {
             background-color: #f9f9f9;
             padding: 15px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            width: 300px;
+            width: calc(33% - 20px);  /* Ajustement de la largeur des produits */
             box-sizing: border-box;
-            flex: 0 0 auto;
             position: relative;
         }
         .product-item p {
@@ -160,7 +156,7 @@
 
         <div class="result" id="total">Total : 0 UEC</div>
 
-        <div id="productList" class="product-carousel"></div>
+        <div id="productList" class="product-list"></div>
 
         <button onclick="addProduct()">Ajouter un produit</button>
         <button onclick="clearProducts()">Tout effacer</button>
