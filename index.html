@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculateur de Weavil Eggs</title>
+    <title>Calculateur de Produits</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -15,12 +15,15 @@
             padding: 20px;
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            max-width: 400px;
+            max-width: 500px;
             margin: auto;
         }
         h1 {
             text-align: center;
             color: #333;
+        }
+        .product {
+            margin-bottom: 20px;
         }
         label {
             display: block;
@@ -30,40 +33,98 @@
         input[type="text"] {
             width: 100%;
             padding: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
             box-sizing: border-box;
         }
         .result {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-top: 10px;
+            text-align: right;
+        }
+        .total {
             font-size: 1.5em;
             font-weight: bold;
             text-align: center;
-            margin-top: 20px;
+            margin-top: 30px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Calculateur de Weavil Eggs</h1>
-        <label for="description">Produit :</label>
-        <input type="text" id="description" value="Weavil eggs" disabled>
+        <h1>Calculateur de Produits</h1>
 
-        <label for="scu">Quantité (SCU) :</label>
-        <input type="text" id="scu" placeholder="Entrez la quantité en SCU" oninput="calculateTotal()">
+        <!-- Produit 1 -->
+        <div class="product">
+            <label for="product1">Produit 1 :</label>
+            <input type="text" id="product1-name" value="Weavil eggs" disabled>
 
-        <label for="price">Prix unitaire :</label>
-        <input type="text" id="price" value="112 500" disabled>
+            <label for="scu1">Quantité (SCU) :</label>
+            <input type="text" id="scu1" placeholder="Entrez la quantité" oninput="calculateTotal()">
 
-        <div class="result" id="total">Total : 0</div>
+            <label for="price1">Prix unitaire :</label>
+            <input type="text" id="price1" value="112 500" disabled>
+
+            <div class="result" id="total1">Total : 0 UEC</div>
+        </div>
+
+        <!-- Produit 2 -->
+        <div class="product">
+            <label for="product2">Produit 2 :</label>
+            <input type="text" id="product2-name" value="Moro eggs" disabled>
+
+            <label for="scu2">Quantité (SCU) :</label>
+            <input type="text" id="scu2" placeholder="Entrez la quantité" oninput="calculateTotal()">
+
+            <label for="price2">Prix unitaire :</label>
+            <input type="text" id="price2" value="80 000" disabled>
+
+            <div class="result" id="total2">Total : 0 UEC</div>
+        </div>
+
+        <!-- Produit 3 -->
+        <div class="product">
+            <label for="product3">Produit 3 :</label>
+            <input type="text" id="product3-name" value="Kibrut eggs" disabled>
+
+            <label for="scu3">Quantité (SCU) :</label>
+            <input type="text" id="scu3" placeholder="Entrez la quantité" oninput="calculateTotal()">
+
+            <label for="price3">Prix unitaire :</label>
+            <input type="text" id="price3" value="150 000" disabled>
+
+            <div class="result" id="total3">Total : 0 UEC</div>
+        </div>
+
+        <!-- Total général -->
+        <div class="total" id="grandTotal">Total général : 0 UEC</div>
     </div>
 
     <script>
         function calculateTotal() {
-            const scu = document.getElementById("scu").value;
-            const price = 112500;
-            const total = scu * price;
-            document.getElementById("total").innerText = "Total : " + total.toLocaleString("fr-FR") + " UEC";
+            // Récupération des valeurs pour le produit 1
+            const scu1 = document.getElementById("scu1").value || 0;
+            const price1 = 112500;
+            const total1 = scu1 * price1;
+            document.getElementById("total1").innerText = "Total : " + total1.toLocaleString("fr-FR") + " UEC";
+
+            // Récupération des valeurs pour le produit 2
+            const scu2 = document.getElementById("scu2").value || 0;
+            const price2 = 80000;
+            const total2 = scu2 * price2;
+            document.getElementById("total2").innerText = "Total : " + total2.toLocaleString("fr-FR") + " UEC";
+
+            // Récupération des valeurs pour le produit 3
+            const scu3 = document.getElementById("scu3").value || 0;
+            const price3 = 150000;
+            const total3 = scu3 * price3;
+            document.getElementById("total3").innerText = "Total : " + total3.toLocaleString("fr-FR") + " UEC";
+
+            // Calcul du total général
+            const grandTotal = total1 + total2 + total3;
+            document.getElementById("grandTotal").innerText = "Total général : " + grandTotal.toLocaleString("fr-FR") + " UEC";
         }
     </script>
 </body>
