@@ -116,9 +116,6 @@
             cursor: pointer;
         }
         .footer {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
             background: rgba(255, 255, 255, 0.9);
             border-top: 1px solid #ddd;
             padding: 10px 20px;
@@ -200,26 +197,22 @@
             suggestionsContainer.innerHTML = "";  // Clear previous suggestions
 
             if (input.length > 1 && Array.isArray(productData)) {
-                const filteredProducts = productData.filter(product => 
+                const filteredProducts = productData.filter(product =>
                     product.commodity_name.toLowerCase().includes(input)
                 );
 
-                if (filteredProducts.length > 0) {
-                    const uniqueProducts = Array.from(new Set(filteredProducts.map(p => p.commodity_name)));
-                    uniqueProducts.forEach(name => {
-                        const suggestion = document.createElement("div");
-                        suggestion.classList.add("autocomplete-suggestion");
-                        suggestion.innerText = name;
-                        suggestion.onclick = () => {
-                            const selectedProduct = filteredProducts.find(p => p.commodity_name === name);
-                            selectProduct(selectedProduct);
-                            suggestionsContainer.innerHTML = "";  // Clear suggestions after selection
-                        };
-                        suggestionsContainer.appendChild(suggestion);
-                    });
-                } else {
-                    suggestionsContainer.innerHTML = "<div class='autocomplete-suggestion'>Aucun produit trouvé</div>";
-                }
+                const uniqueProducts = Array.from(new Set(filteredProducts.map(p => p.commodity_name)));
+                uniqueProducts.forEach(name => {
+                    const suggestion = document.createElement("div");
+                    suggestion.classList.add("autocomplete-suggestion");
+                    suggestion.innerText = name;
+                    suggestion.onclick = () => {
+                        const selectedProduct = filteredProducts.find(p => p.commodity_name === name);
+                        selectProduct(selectedProduct);
+                        suggestionsContainer.innerHTML = "";  // Clear suggestions after selection
+                    };
+                    suggestionsContainer.appendChild(suggestion);
+                });
             }
         }
 
@@ -231,16 +224,14 @@
         }
 
         function updatePrice() {
-            if (selectedProductData) {
-                const sellLocations = document.getElementById("sellLocations");
-                const selectedLocation = sellLocations.value || sellLocations.options[0]?.value;
-                if (selectedLocation) {
-                    const locationData = productData.find(p => p.terminal_name === selectedLocation && p.commodity_name === selectedProductData.commodity_name);
-                    if (locationData) {
-                        document.getElementById("price").value = locationData.price_sell.toLocaleString("fr-FR") + " UEC";
-                        selectedProductData.price_sell = locationData.price_sell;
-                        updateTotal();
-                    }
+            const sellLocations = document.getElementById("sellLocations");
+            const selectedLocation = sellLocations.value;
+            if (selectedLocation && selectedProductData) {
+                const locationData = productData.find(p => p.terminal_name === selectedLocation && p.commodity_name === selectedProductData.commodity_name);
+                if (locationData) {
+                    document.getElementById("price").value = locationData.price_sell.toLocaleString("fr-FR") + " UEC";
+                    selectedProductData.price_sell = locationData.price_sell;
+                    updateTotal();
                 }
             }
         }
@@ -248,19 +239,21 @@
         function populateSellLocations() {
             const sellLocations = document.getElementById("sellLocations");
             sellLocations.innerHTML = "";  // Clear previous locations
-            const productLocations = productData.filter(p => p.commodity_name === selectedProductData.commodity_name)
-                                                 .map(p => p.terminal_name);
-            const uniqueLocations = [...new Set(productLocations)];
-            uniqueLocations.forEach(location => {
-                const option = document.createElement("option");
-                option.value = location;
-                option.textContent = location;
-                sellLocations.appendChild(option);
-            });
-            // Automatically select the first location if available
-            if (uniqueLocations.length > 0) {
-                sellLocations.value = uniqueLocations[0];
-                updatePrice();
+            if (selectedProductData) {
+                const productLocations = productData.filter(p => p.commodity_name === selectedProductData.commodity_name)
+                                                     .map(p => p.terminal_name);
+                const uniqueLocations = [...new Set(productLocations)];
+                uniqueLocations.forEach(location => {
+                    const option = document.createElement("option");
+                    option.value = location;
+                    option.textContent = location;
+                    sellLocations.appendChild(option);
+                });
+                // Automatically select the first location if available
+                if (uniqueLocations.length > 0) {
+                    sellLocations.value = uniqueLocations[0];
+                    updatePrice();
+                }
             }
         }
 
@@ -274,7 +267,7 @@
         function addProduct() {
             const productName = document.getElementById("productName").value;
             const scu = parseFloat(document.getElementById("scu").value) || 0;
-            const price = selectedProductData ? selectedProductData.price_sell : 0;
+            const price = parseFloat(document.getElementById("price").value.replace(' UEC', '').replace(/ /g, '')) || 0;
             const total = scu * price;
             const sellLocation = document.getElementById("sellLocations").value;
 
@@ -320,7 +313,7 @@
             productItem.remove();
 
             // Retirer le produit de la liste et mettre à jour le total final
-            productList = productList.filter(p => p.productName !== productName || p.total !== total);
+            productList = productList.filter(p => !(p.productName === productName && p.total === total));
             updateFinalTotal();
 
             // Cacher le bouton "Tout effacer" si aucun produit n'est présent
