@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brave le patron</title>
+    <title>Calculateur de Produits avec API et Suggestions</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -88,7 +88,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>Yela yelaaaa</h1>
+        <h1>Calculateur de Produits</h1>
 
         <div class="form-group">
             <label for="productName">Nom du produit :</label>
@@ -132,7 +132,6 @@
                 const response = await fetch('https://uexcorp.space/api/2.0/commodities_prices_all');
                 const result = await response.json();
 
-                // Assurez-vous que result.data est un tableau
                 if (Array.isArray(result.data)) {
                     productData = result.data;
                 }
@@ -157,7 +156,10 @@
                         const suggestion = document.createElement("div");
                         suggestion.classList.add("autocomplete-suggestion");
                         suggestion.innerText = product.commodity_name;
-                        suggestion.onclick = () => selectProduct(product);
+                        suggestion.onclick = () => {
+                            selectProduct(product);
+                            suggestionsContainer.innerHTML = "";  // Clear suggestions after selection
+                        };
                         suggestionsContainer.appendChild(suggestion);
                     });
                 } else {
@@ -171,8 +173,6 @@
             document.getElementById("productName").value = product.commodity_name;
             updatePrice();
             populateSellLocations();
-
-            calculateTotal();
         }
 
         function updatePrice() {
