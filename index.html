@@ -16,7 +16,7 @@
             flex-direction: column;
         }
         .container {
-            max-width: 70%;  /* Ajustement de la largeur */
+            max-width: 70%;
             margin: 20px auto;
             background-color: rgba(255, 255, 255, 0.9);
             padding: 20px;
@@ -80,7 +80,7 @@
         }
         .product-list {
             display: flex;
-            flex-wrap: wrap;  /* Retour à la ligne lorsque nécessaire */
+            flex-wrap: wrap;
             gap: 20px;
         }
         .product-item {
@@ -88,7 +88,7 @@
             padding: 15px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            width: calc(33% - 20px);  /* Ajustement de la largeur des produits */
+            width: calc(33% - 20px);
             box-sizing: border-box;
             position: relative;
         }
@@ -127,6 +127,10 @@
             font-size: 1.2em;
             font-weight: bold;
         }
+        .clear-button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -156,10 +160,13 @@
 
         <div class="result" id="total">Total : 0 UEC</div>
 
+        <button onclick="addProduct()">Ajouter un produit</button>
+
         <div id="productList" class="product-list"></div>
 
-        <button onclick="addProduct()">Ajouter un produit</button>
-        <button onclick="clearProducts()">Tout effacer</button>
+        <div class="clear-button-container" id="clearButtonContainer">
+            <button onclick="clearProducts()">Tout effacer</button>
+        </div>
     </div>
 
     <div class="footer">
@@ -189,7 +196,7 @@
             const suggestionsContainer = document.getElementById("suggestions");
             suggestionsContainer.innerHTML = "";  // Clear previous suggestions
 
-            if (input.length > 1 && Array.isArray(productData)) {  // Show suggestions if input length is greater than 1
+            if (input.length > 1 && Array.isArray(productData)) {
                 const uniqueProducts = [...new Set(productData.map(p => p.commodity_name.toLowerCase()))];
                 const filteredProducts = uniqueProducts.filter(name => name.includes(input)).map(name => {
                     return productData.find(product => product.commodity_name.toLowerCase() === name);
@@ -250,20 +257,20 @@
 
         function calculateTotal() {
             const scu = parseFloat(document.getElementById("scu").value) || 0;
-            const price = parseFloat(selectedProductData?.price_sell) || 0;
+            const price = parseFloat(document.getElementById("price").value.replace(' UEC', '').replace(/ /g, '')) || 0;
             const total = scu * price;
             document.getElementById("total").innerText = "Total : " + total.toLocaleString("fr-FR") + " UEC";
         }
 
         function addProduct() {
             const productName = document.getElementById("productName").value;
-            const scu = document.getElementById("scu").value;
+            const scu = parseFloat(document.getElementById("scu").value) || 0;
             const price = selectedProductData ? selectedProductData.price_sell : 0;
             const total = scu * price;
             const sellLocation = document.getElementById("sellLocations").value;
 
             if (productName && scu) {
-                const productCarouselElement = document.getElementById("productList");
+                const productListElement = document.getElementById("productList");
 
                 const productItem = document.createElement("div");
                 productItem.classList.add("product-item");
@@ -277,7 +284,7 @@
                     <button class="remove-button" onclick="removeProduct(this)">Supprimer ce produit</button>
                 `;
 
-                productCarouselElement.appendChild(productItem);
+                productListElement.appendChild(productItem);
 
                 // Ajouter le produit à la liste des produits
                 productList.push({ productName, scu, price, total, sellLocation });
@@ -290,6 +297,9 @@
                 document.getElementById("sellLocations").innerHTML = "";
                 document.getElementById("total").innerText = "Total : 0 UEC";
                 selectedProductData = null;
+
+                // Afficher le bouton "Tout effacer" si des produits ont été ajoutés
+                document.getElementById("clearButtonContainer").style.display = productList.length > 0 ? "block" : "none";
             }
         }
 
@@ -303,6 +313,9 @@
             // Retirer le produit de la liste et mettre à jour le total final
             productList = productList.filter(p => p.productName !== productName || p.total !== total);
             updateFinalTotal();
+
+            // Cacher le bouton "Tout effacer" si aucun produit n'est présent
+            document.getElementById("clearButtonContainer").style.display = productList.length > 0 ? "block" : "none";
         }
 
         function updateFinalTotal() {
@@ -311,10 +324,13 @@
         }
 
         function clearProducts() {
-            const productCarouselElement = document.getElementById("productList");
-            productCarouselElement.innerHTML = "";
+            const productListElement = document.getElementById("productList");
+            productListElement.innerHTML = "";
             productList = [];
             updateFinalTotal();
+
+            // Cacher le bouton "Tout effacer" après avoir effacé les produits
+            document.getElementById("clearButtonContainer").style.display = "none";
         }
 
         // Fetch data when the page loads
