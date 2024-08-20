@@ -212,7 +212,7 @@
 
             const locationData = productData.find(p => p.terminal_name === sellLocation && p.commodity_name === productName);
             if (locationData) {
-                document.getElementById("price").value = locationData.price_sell.toLocaleString("fr-FR") + " UEC";
+                document.getElementById("price").value = locationData.price_sell.toFixed(2).toLocaleString("fr-FR") + " UEC";
                 updateTotal();
             }
         }
@@ -221,7 +221,7 @@
             const scu = parseFloat(document.getElementById("scu").value) || 0;
             const price = parseFloat(document.getElementById("price").value.replace(' UEC', '').replace(/ /g, '')) || 0;
             const total = scu * price;
-            document.getElementById("total").innerText = "Total : " + total.toLocaleString("fr-FR") + " UEC";
+            document.getElementById("total").innerText = "Total : " + total.toFixed(2).toLocaleString("fr-FR") + " UEC";
         }
 
         function addProduct() {
@@ -239,15 +239,14 @@
 
                 productItem.innerHTML = `
                     <h3>${productName}</h3>
-                    <p>Quantité (SCU) : ${scu}</p>
-                    <p>Prix unitaire : ${price.toLocaleString("fr-FR")} UEC</p>
+                    <p>Quantité : ${scu}</p>
+                    <p>Prix unitaire : ${price.toFixed(2).toLocaleString("fr-FR")} UEC</p>
                     <p class="location">Où vendre : ${sellLocation}</p>
-                    <p>Total : ${total.toLocaleString("fr-FR")} UEC</p>
+                    <p>Total : ${total.toFixed(2).toLocaleString("fr-FR")} UEC</p>
                     <button class="remove-button" onclick="removeProduct(this)">Supprimer ce produit</button>
                 `;
 
                 productListElement.appendChild(productItem);
-
                 productList.push({ productName, scu, price, total, sellLocation });
                 updateFinalTotal();
 
@@ -264,14 +263,13 @@
             const total = parseFloat(productItem.querySelector('p:nth-child(4)').innerText.replace('Total : ', '').replace(' UEC', '').replace(/ /g, ''));
 
             productItem.remove();
-
             productList = productList.filter(p => p.total !== total);
             updateFinalTotal();
         }
 
         function updateFinalTotal() {
             const finalTotal = productList.reduce((sum, product) => sum + product.total, 0);
-            document.getElementById("finalTotal").innerText = "Total final : " + finalTotal.toLocaleString("fr-FR") + " UEC";
+            document.getElementById("finalTotal").innerText = "Total final : " + finalTotal.toFixed(2).toLocaleString("fr-FR") + " UEC";
         }
 
         window.onload = fetchProductData;
