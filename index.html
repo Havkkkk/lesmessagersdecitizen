@@ -165,7 +165,7 @@
                     product.commodity_name.toLowerCase().includes(input)
                 );
 
-                const uniqueProducts = Array.from(new Set(filteredProducts.map(p => p.commodity_name)));
+                const uniqueProducts = [...new Set(filteredProducts.map(p => p.commodity_name))];
                 uniqueProducts.forEach(name => {
                     const suggestion = document.createElement("div");
                     suggestion.classList.add("autocomplete-suggestion");
@@ -233,7 +233,8 @@
         // Fonction pour formater les nombres avec séparateurs de milliers et deux décimales
         function formatNumber(number) {
             return new Intl.NumberFormat('fr-FR', {
-                minimumFractionDigits: 2
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
             }).format(number);
         }
 
