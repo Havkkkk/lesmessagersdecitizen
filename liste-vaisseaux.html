@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste des Vaisseaux</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: url('https://media.discordapp.net/attachments/1062036959465328752/1272239590958305431/Star_Citizen_11_08_2024_17_11_40.png?ex=66c575b3&is=66c42433&hm=b8657c1b3d6d2316cb8d8095d1549090c555ac1fcb517feb21bcff1446abf7aa&=&format=webp&quality=lossless&width=3068&height=1726') no-repeat center center fixed;
+            background-size: cover;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            padding: 20px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.9);
+            border-bottom: 1px solid #ddd;
+        }
+        .header a {
+            text-decoration: none;
+            color: #007bff;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        .header a:hover {
+            text-decoration: underline;
+        }
+        .container {
+            width: 90%;
+            margin: 20px auto;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        .concept {
+            background-color: #dff0d8; /* Vert clair */
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="index.html">Retour à l'accueil</a>
+    </div>
+    <div class="container">
+        <h1>Liste des Vaisseaux</h1>
+        <input type="text" id="searchBox" placeholder="Rechercher par nom de vaisseau..." onkeyup="filterTable()">
+        <table id="vaisseauxTable">
+            <thead>
+                <tr>
+                    <th>Nom du Vaisseau</th>
+                    <th>Nombre de SCU</th>
+                    <th>Équipage (Crew)</th>
+                    <th>Prix de Vente</th>
+                    <th>Ville de Vente</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Les données des vaisseaux seront insérées ici -->
+            </tbody>
+        </table>
+    </div>
+    <script>
+        let vehiclesData = [];
+
+        async function fetchData() {
+            try {
+                // Appel API pour récupérer les données des vaisseaux
+                const responseVehicles = await fetch('https://uexcorp.space/api/2.0/vehicles');
+                const vehicles = await responseVehicles.json();
+
+                // Appel API pour récupérer les prix et villes de vente
+                const responsePrices = await fetch('https://uexcorp.space/api/2.0/vehicles_purchases_prices');
+                const prices = await responsePrices.json();
+
+                // Appel API pour récupérer toutes les informations de prix
+                const responseAllPrices = await fetch('https://uexcorp.space/api/2.0/vehicles_purchases_prices_all');
+                const allPrices = await responseAllPrices.json();
+
+                // Traitement et affichage des données
+                vehiclesData = processData(vehicles.data, prices.data, allPrices.data);
+                populateTable(vehiclesData);
+            } catch (error) {
+                console.error("Erreur lors de la récupération des données : ", error);
+            }
+        }
+
+        function processData(vehiclesData, pricesData, allPricesData) {
+            const vehicleMap = new Map();
+
+            vehiclesData.forEach(vehicle => {
+                vehicleMap.set(vehicle.id, {
+                    name: vehicle.name,
+                    scu: vehicle.scu,
+                    crew: formatCrew(vehicle.crew),
+                    price: "N/A", // Valeur par défaut
+                    city: [] // Tableau pour stocker les villes
+                });
+            });
+
+            pricesData.forEach(price => {
+                const vehicle = vehicleMap.get(price.id_vehicle);
+                if (vehicle) {
+                    vehicle.price = formatPrice(price.price_buy);
+                    vehicle.city.push(price.terminal_name);
+                }
+            });
+
+            // Filtrer les vaisseaux qui ont un prix
+            return [...vehicleMap.values()].filter(vehicle => vehicle.price !== "N/A");
+        }
+
+        function populateTable(vehiclesData) {
+            const tableBody = document.querySelector('#vaisseauxTable tbody');
+            tableBody.innerHTML = "";
+
+            vehiclesData.forEach(vehicle => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${vehicle.name || "N/A"}</td>
+                    <td>${vehicle.scu || "N/A"}</td>
+                    <td>${vehicle.crew || "N/A"}</td>
+                    <td>${vehicle.price}</td>
+                    <td>${vehicle.city.join(', ') || "N/A"}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function formatCrew(crew) {
+            if (typeof crew !== 'string') {
+                return "N/A";
+            }
+
+            const crewParts = crew.replace(/\s+/g, '').split(',');
+
+            if (crewParts.length !== 2 && crewParts.length !== 1) {
+                return "N/A";
+            }
+
+            const minCrew = parseInt(crewParts[0], 10);
+            const maxCrew = crewParts.length === 2 ? parseInt(crewParts[1], 10) : minCrew;
+
+            if (isNaN(minCrew) || isNaN(maxCrew)) {
+                return "N/A";
+            }
+
+            if (minCrew === maxCrew) {
+                return minCrew + " joueur" + (minCrew > 1 ? "s" : "");
+            } else {
+                return minCrew + " - " + maxCrew + " joueurs";
+            }
+        }
+
+        function formatPrice(price) {
+            return parseFloat(price).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " UEC";
+        }
+
+        function filterTable() {
+            const query = document.getElementById('searchBox').value.toLowerCase();
+            const rows = document.querySelectorAll('#vaisseauxTable tbody tr');
+            
+            rows.forEach(row => {
+                const name = row.querySelector('td').textContent.toLowerCase();
+                if (name.includes(query)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        window.onload = fetchData;
+    </script>
+</body>
+</html>
