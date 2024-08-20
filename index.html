@@ -212,7 +212,8 @@
 
             const locationData = productData.find(p => p.terminal_name === sellLocation && p.commodity_name === productName);
             if (locationData) {
-                document.getElementById("price").value = locationData.price_sell.toFixed(2).toLocaleString("fr-FR") + " UEC";
+                const price = locationData.price_sell;
+                document.getElementById("price").value = formatNumber(price) + " UEC";
                 updateTotal();
             }
         }
@@ -221,7 +222,11 @@
             const scu = parseFloat(document.getElementById("scu").value) || 0;
             const price = parseFloat(document.getElementById("price").value.replace(' UEC', '').replace(/ /g, '')) || 0;
             const total = scu * price;
-            document.getElementById("total").innerText = "Total : " + total.toFixed(2).toLocaleString("fr-FR") + " UEC";
+            document.getElementById("total").innerText = "Total : " + formatNumber(total) + " UEC";
+        }
+
+        function formatNumber(number) {
+            return number.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
         function addProduct() {
@@ -240,9 +245,9 @@
                 productItem.innerHTML = `
                     <h3>${productName}</h3>
                     <p>Quantité : ${scu}</p>
-                    <p>Prix unitaire : ${price.toFixed(2).toLocaleString("fr-FR")} UEC</p>
+                    <p>Prix unitaire : ${formatNumber(price)} UEC</p>
                     <p class="location">Où vendre : ${sellLocation}</p>
-                    <p>Total : ${total.toFixed(2).toLocaleString("fr-FR")} UEC</p>
+                    <p>Total : ${formatNumber(total)} UEC</p>
                     <button class="remove-button" onclick="removeProduct(this)">Supprimer ce produit</button>
                 `;
 
@@ -269,7 +274,7 @@
 
         function updateFinalTotal() {
             const finalTotal = productList.reduce((sum, product) => sum + product.total, 0);
-            document.getElementById("finalTotal").innerText = "Total final : " + finalTotal.toFixed(2).toLocaleString("fr-FR") + " UEC";
+            document.getElementById("finalTotal").innerText = "Total final : " + formatNumber(finalTotal) + " UEC";
         }
 
         window.onload = fetchProductData;
