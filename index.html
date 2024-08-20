@@ -9,16 +9,20 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background: url('https://media.discordapp.net/attachments/1062036959465328752/1271382779980156990/Star_Citizen_08_08_2024_22_24_56.png?ex=66c4fabb&is=66c3a93b&hm=e82ddd902fcc7563f1105556333bf311027b519282dd9c5f0e6bb04656611845&=&format=webp&quality=lossless&width=3068&height=1726') no-repeat center center fixed;
+            background: url('https://example.com/star-citizen-background.jpg') no-repeat center center fixed;
             background-size: cover;
+            height: 100vh;
+            overflow: hidden; /* Prevent scrollbar for the whole page */
         }
         .container {
             max-width: 1000px;
-            margin: 30px auto;
+            height: 100vh; /* Full viewport height */
+            margin: 0 auto;
             background-color: rgba(255, 255, 255, 0.9);
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 15px rgba(0,0,0,0.3);
+            overflow-y: auto; /* Enable vertical scroll if content exceeds viewport height */
         }
         h1 {
             text-align: center;
@@ -74,10 +78,11 @@
             text-align: center;
             margin-top: 30px;
         }
-        .product-list {
-            margin-top: 20px;
+        .product-carousel {
             display: flex;
-            flex-wrap: wrap;
+            overflow-x: auto;
+            white-space: nowrap;
+            padding: 10px 0;
             gap: 20px;
         }
         .product-item {
@@ -85,18 +90,10 @@
             padding: 15px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            width: calc(33.333% - 20px);
+            width: 300px;
             box-sizing: border-box;
+            flex: 0 0 auto;
             position: relative;
-        }
-        .product-item img {
-            width: 100%;
-            height: auto;
-            border-bottom: 1px solid #ddd;
-            margin-bottom: 10px;
-        }
-        .product-item button {
-            margin-top: 10px;
         }
         .product-item p {
             margin: 5px 0;
@@ -116,6 +113,9 @@
             border: none;
             border-radius: 5px;
             padding: 5px;
+            cursor: pointer;
+        }
+        button {
             cursor: pointer;
         }
     </style>
@@ -147,9 +147,10 @@
 
         <div class="result" id="total">Total : 0 UEC</div>
 
-        <div id="productList" class="product-list"></div>
+        <div id="productList" class="product-carousel"></div>
 
         <button onclick="addProduct()">Ajouter un produit</button>
+        <button onclick="clearProducts()">Tout effacer</button>
 
         <div class="total">
             <span id="finalTotal">Total final : 0 UEC</span>
@@ -255,16 +256,14 @@
             const price = selectedProductData ? selectedProductData.price_sell : 0;
             const total = scu * price;
             const sellLocation = document.getElementById("sellLocations").value;
-            const productImage = selectedProductData ? selectedProductData.image_url : 'https://example.com/default-product.jpg';  // Example URL for product image
 
             if (productName && scu) {
-                const productListElement = document.getElementById("productList");
+                const productCarouselElement = document.getElementById("productList");
 
                 const productItem = document.createElement("div");
                 productItem.classList.add("product-item");
 
                 productItem.innerHTML = `
-                    <img src="${productImage}" alt="${productName}">
                     <h3>${productName}</h3>
                     <p>Quantité (SCU) : ${scu}</p>
                     <p>Prix unitaire : ${price.toLocaleString("fr-FR")} UEC</p>
@@ -273,7 +272,7 @@
                     <button class="remove-button" onclick="removeProduct(this)">Supprimer ce produit</button>
                 `;
 
-                productListElement.appendChild(productItem);
+                productCarouselElement.appendChild(productItem);
 
                 // Ajouter le produit à la liste des produits
                 productList.push({ productName, scu, price, total, sellLocation });
@@ -304,6 +303,13 @@
         function updateFinalTotal() {
             const finalTotal = productList.reduce((sum, product) => sum + product.total, 0);
             document.getElementById("finalTotal").innerText = "Total final : " + finalTotal.toLocaleString("fr-FR") + " UEC";
+        }
+
+        function clearProducts() {
+            const productCarouselElement = document.getElementById("productList");
+            productCarouselElement.innerHTML = "";
+            productList = [];
+            updateFinalTotal();
         }
 
         // Fetch data when the page loads
