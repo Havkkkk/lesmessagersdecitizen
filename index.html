@@ -138,7 +138,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>Calculateur de Produits</h1>
+        <h1>Ca</h1>
 
         <div class="form-group">
             <label for="productName">Nom du produit :</label>
@@ -190,7 +190,7 @@
                     productData = result.data;
                 }
             } catch (error) {
-                // Les erreurs sont silencieuses ici
+                console.error("Erreur lors de la récupération des données : ", error);
             }
         }
 
@@ -200,18 +200,19 @@
             suggestionsContainer.innerHTML = "";  // Clear previous suggestions
 
             if (input.length > 1 && Array.isArray(productData)) {
-                const uniqueProducts = [...new Set(productData.map(p => p.commodity_name.toLowerCase()))];
-                const filteredProducts = uniqueProducts.filter(name => name.includes(input)).map(name => {
-                    return productData.find(product => product.commodity_name.toLowerCase() === name);
-                });
+                const filteredProducts = productData.filter(product => 
+                    product.commodity_name.toLowerCase().includes(input)
+                );
 
                 if (filteredProducts.length > 0) {
-                    filteredProducts.forEach(product => {
+                    const uniqueProducts = Array.from(new Set(filteredProducts.map(p => p.commodity_name)));
+                    uniqueProducts.forEach(name => {
                         const suggestion = document.createElement("div");
                         suggestion.classList.add("autocomplete-suggestion");
-                        suggestion.innerText = product.commodity_name;
+                        suggestion.innerText = name;
                         suggestion.onclick = () => {
-                            selectProduct(product);
+                            const selectedProduct = filteredProducts.find(p => p.commodity_name === name);
+                            selectProduct(selectedProduct);
                             suggestionsContainer.innerHTML = "";  // Clear suggestions after selection
                         };
                         suggestionsContainer.appendChild(suggestion);
@@ -226,7 +227,6 @@
             selectedProductData = product;
             document.getElementById("productName").value = product.commodity_name;
             populateSellLocations();
-            // Automatically select the first location if available
             updatePrice();
         }
 
