@@ -101,15 +101,11 @@
             font-size: 1.2em;
             font-weight: bold;
         }
-        .product-item {
-            display: flex;
-            flex-direction: column;
-        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Calculateur de Produitsss</h1>
+        <h1>Calculateur de Produits</h1>
 
         <div class="form-group">
             <label for="productName">Nom du produit :</label>
@@ -228,15 +224,15 @@
 
         // Fonction pour mettre à jour le total en fonction de la quantité et du prix unitaire
         function updateTotal() {
-            const scu = parseFloat(document.getElementById("scu").value;
-            const price = parseFloat(document.getElementById("price").value;
+            const scu = parseFloat(document.getElementById("scu").value.replace(/ /g, '')) || 0;
+            const price = parseFloat(document.getElementById("price").value.replace(' UEC', '').replace(/ /g, '')) || 0;
             const total = scu * price;
             document.getElementById("total").innerText = "Total : " + formatNumber(total) + " UEC";
         }
 
         // Fonction pour formater les nombres avec séparateurs de milliers et deux décimales
         function formatNumber(number) {
-            return new Intl.NumberFormat('fr-FR').format(number);
+            return new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(number);
         }
 
         // Fonction pour ajouter un produit à la liste
