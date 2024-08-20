@@ -230,10 +230,14 @@
             document.getElementById("total").innerText = "Total : " + formatNumber(total) + " UEC";
         }
 
-        // Fonction pour formater les nombres avec séparateurs de milliers et deux décimales
-        function formatNumber(number) {
-            return new Intl.NumberFormat('fr-FR').format(number);
-        }
+        / Fonction pour formater les nombres avec séparateurs de milliers et deux décimales, sauf si le nombre est très grand
+function formatNumber(number) {
+    if (number >= 1000000) {
+        return new Intl.NumberFormat('fr-FR').format(Math.round(number)); // Pour les grands nombres, afficher uniquement l'entier
+    } else {
+        return new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(number);
+    }
+}
 
         // Fonction pour ajouter un produit à la liste
         function addProduct() {
