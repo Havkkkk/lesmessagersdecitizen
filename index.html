@@ -107,19 +107,6 @@
             left: 0;
             z-index: 1000;
         }
-        .best-location {
-            position: relative;
-            display: inline-block;
-            padding-left: 20px;
-        }
-        .best-location::before {
-            content: '⭐';
-            color: green;
-            position: absolute;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%);
-        }
     </style>
 </head>
 <body>
@@ -194,20 +181,17 @@
             const productLocations = productData
                 .filter(p => p.commodity_name === product.commodity_name)
                 .map(p => ({ name: p.terminal_name, price: p.price_sell }));
-            // Find the best location
-            const bestLocation = productLocations.reduce((min, loc) => loc.price < min.price ? loc : min, productLocations[0]);
+            // Sort locations by price from highest to lowest
+            productLocations.sort((a, b) => b.price - a.price);
             // Add locations to the select element
             productLocations.forEach(loc => {
                 const option = document.createElement("option");
                 option.value = loc.name;
                 option.textContent = `${loc.name} - ${loc.price.toFixed(2)} UEC`;
-                if (loc.price === bestLocation.price) {
-                    option.classList.add("best-location");
-                }
                 sellLocations.appendChild(option);
             });
             if (productLocations.length > 0) {
-                sellLocations.value = bestLocation.name; // Set the default value to the best location
+                sellLocations.value = productLocations[0].name; // Set the default value to the first (highest price) location
                 updatePrice();
             }
         }
