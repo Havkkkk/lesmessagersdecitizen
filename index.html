@@ -29,7 +29,6 @@
         }
         .form-group {
             margin-bottom: 20px;
-            position: relative;
         }
         label {
             display: block;
@@ -106,7 +105,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>Calculateur de Produitssssss</h1>
+        <h1>Calculateur de Produits</h1>
 
         <div class="form-group">
             <label for="productName">Nom du produit :</label>
@@ -254,9 +253,9 @@
                 productItem.classList.add("product-item");
                 productItem.innerHTML = `
                     <p>Produit : ${productName}</p>
-                    <p>Quantité (SCU) : ${scu}</p>
+                    <p>Quantité (SCU) : ${formatNumber(scu)}</p>
                     <p>Prix unitaire : ${formatNumber(price)} UEC</p>
-                    <p>Où vendre : ${sellLocation}</p>
+                    <p class="location">Où vendre : ${sellLocation}</p>
                     <p>Total : ${formatNumber(total)} UEC</p>
                     <button class="remove-button" onclick="removeProduct(this)">Supprimer ce produit</button>
                 `;
@@ -276,11 +275,11 @@
         // Fonction pour supprimer un produit de la liste
         function removeProduct(button) {
             const productItem = button.parentElement;
-            const productTotal = parseFloat(productItem.querySelector('p:nth-child(5)').innerText.replace('Total : ', '').replace(' UEC', '').replace(/ /g, ''));
+            const totalText = productItem.querySelector('p:nth-child(5)').innerText.replace('Total : ', '').replace(' UEC', '').replace(/ /g, '');
+            const total = parseFloat(totalText);
             productItem.remove();
 
-            productList = productList.filter(p => p.total !== productTotal);
-
+            productList = productList.filter(p => p.total !== total);
             updateFinalTotal();
         }
 
@@ -290,6 +289,7 @@
             document.getElementById("finalTotal").innerText = "Total final : " + formatNumber(finalTotal) + " UEC";
         }
 
+        // Charger les données produits au chargement de la page
         window.onload = fetchProductData;
     </script>
 </body>
