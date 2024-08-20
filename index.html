@@ -31,7 +31,7 @@
             margin: 8px 0 4px;
             font-weight: bold;
         }
-        input[type="text"], select {
+        input[type="text"], select, button {
             width: calc(100% - 20px);
             padding: 10px;
             margin-bottom: 10px;
@@ -71,6 +71,19 @@
             text-align: center;
             margin-top: 30px;
         }
+        .product-list {
+            margin-top: 20px;
+        }
+        .product-item {
+            background-color: #f9f9f9;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .product-item button {
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -99,6 +112,10 @@
         </div>
 
         <div class="result" id="total">Total : 0 UEC</div>
+
+        <div id="productList" class="product-list"></div>
+
+        <button onclick="addProduct()">Ajouter un produit</button>
     </div>
 
     <script>
@@ -129,7 +146,10 @@
             suggestionsContainer.innerHTML = "";  // Clear previous suggestions
 
             if (input.length > 1 && Array.isArray(productData)) {  // Show suggestions if input length is greater than 1
-                const filteredProducts = productData.filter(product => product.commodity_name.toLowerCase().includes(input));
+                const uniqueProducts = [...new Set(productData.map(p => p.commodity_name.toLowerCase()))];
+                const filteredProducts = uniqueProducts.filter(name => name.includes(input)).map(name => {
+                    return productData.find(product => product.commodity_name.toLowerCase() === name);
+                });
 
                 if (filteredProducts.length > 0) {
                     filteredProducts.forEach(product => {
@@ -170,6 +190,44 @@
             const price = selectedProductData ? selectedProductData.price_sell : 0;
             const total = scu * price;
             document.getElementById("total").innerText = "Total : " + total.toLocaleString("fr-FR") + " UEC";
+        }
+
+        function addProduct() {
+            const productName = document.getElementById("productName").value;
+            const scu = document.getElementById("scu").value;
+            const price = selectedProductData ? selectedProductData.price_sell : 0;
+            const total = scu * price;
+
+            if (productName && scu) {
+                const productList = document.getElementById("productList");
+                const productItem = document.createElement("div");
+                productItem.classList.add("product-item");
+
+                productItem.innerHTML = `
+                    <h3>${productName}</h3>
+                    <p>Quantité (SCU) : ${scu}</p>
+                    <p>Prix unitaire : ${price.toLocaleString("fr-FR")} UEC</p>
+                    <p>Total : ${total.toLocaleString("fr-FR")} UEC</p>
+                    <button onclick="removeProduct(this)">Supprimer ce produit</button>
+                `;
+
+                productList.appendChild(productItem);
+
+                // Réinitialiser les champs après ajout
+                document.getElementById("productName").value = "";
+                document.getElementById("scu").value = "";
+                document.getElementById("price").value = "";
+                document.getElementById("sellLocations").innerHTML = "";
+                document.getElementById("total").innerText = "Total : 0 UEC";
+                selectedProductData = null;
+            } else {
+                alert("Veuillez entrer le nom du produit et la quantité SCU.");
+            }
+        }
+
+        function removeProduct(button) {
+            const productItem = button.parentElement;
+            productItem.remove();
         }
 
         // Fetch data when the page loads
