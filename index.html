@@ -138,7 +138,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>Calculateur de Produits</h1>
+        <h1>Calculateur de Produitssssssssss</h1>
 
         <div class="form-group">
             <label for="productName">Nom du produit :</label>
@@ -148,7 +148,7 @@
 
         <div class="form-group">
             <label for="scu">Quantité (SCU) :</label>
-            <input type="text" id="scu" placeholder="Entrez la quantité" oninput="calculateTotal()">
+            <input type="text" id="scu" placeholder="Entrez la quantité" oninput="updateTotal()">
         </div>
 
         <div class="form-group">
@@ -163,11 +163,11 @@
 
         <div class="result" id="total">Total : 0 UEC</div>
 
+        <button id="addProductButton" onclick="addProduct()">Ajouter un produit</button>
+
         <div class="clear-button-container" id="clearButtonContainer">
             <button onclick="clearProducts()">Tout effacer</button>
         </div>
-
-        <button onclick="addProduct()">Ajouter un produit</button>
 
         <div id="productList" class="product-list"></div>
     </div>
@@ -239,7 +239,7 @@
                     if (locationData) {
                         document.getElementById("price").value = locationData.price_sell.toLocaleString("fr-FR") + " UEC";
                         selectedProductData.price_sell = locationData.price_sell;
-                        calculateTotal();
+                        updateTotal();
                     }
                 }
             }
@@ -264,7 +264,7 @@
             }
         }
 
-        function calculateTotal() {
+        function updateTotal() {
             const scu = parseFloat(document.getElementById("scu").value) || 0;
             const price = parseFloat(document.getElementById("price").value.replace(' UEC', '').replace(/ /g, '')) || 0;
             const total = scu * price;
