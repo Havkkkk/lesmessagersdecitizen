@@ -108,7 +108,7 @@
 
         <div class="form-group">
             <label for="sellLocations">Où vendre :</label>
-            <select id="sellLocations"></select>
+            <select id="sellLocations" onchange="updatePrice()"></select>
         </div>
 
         <div class="result" id="total">Total : 0 UEC</div>
@@ -116,11 +116,16 @@
         <div id="productList" class="product-list"></div>
 
         <button onclick="addProduct()">Ajouter un produit</button>
+
+        <div class="total">
+            <span id="finalTotal">Total final : 0 UEC</span>
+        </div>
     </div>
 
     <script>
         let productData = [];
         let selectedProductData = null;
+        let productList = [];
 
         async function fetchProductData() {
             try {
@@ -130,13 +135,9 @@
                 // Assurez-vous que result.data est un tableau
                 if (Array.isArray(result.data)) {
                     productData = result.data;
-                } else {
-                    console.error('Les données récupérées ne sont pas un tableau:', result.data);
                 }
-
-                console.log('Données récupérées:', productData);  // Pour vérifier les données dans la console
             } catch (error) {
-                console.error('Erreur lors de la récupération des données:', error);
+                // Les erreurs sont silencieuses ici
             }
         }
 
@@ -168,21 +169,35 @@
         function selectProduct(product) {
             selectedProductData = product;
             document.getElementById("productName").value = product.commodity_name;
-            document.getElementById("price").value = product.price_sell.toLocaleString("fr-FR") + " UEC";
-            document.getElementById("suggestions").innerHTML = "";
-
-            // Populate sell locations
-            const sellLocations = document.getElementById("sellLocations");
-            sellLocations.innerHTML = "";  // Clear previous locations
-            const productLocations = productData.filter(p => p.commodity_name === product.commodity_name);
-            productLocations.forEach(p => {
-                const option = document.createElement("option");
-                option.value = p.terminal_name;
-                option.text = p.terminal_name;
-                sellLocations.add(option);
-            });
+            updatePrice();
+            populateSellLocations();
 
             calculateTotal();
+        }
+
+        function updatePrice() {
+            if (selectedProductData) {
+                const selectedLocation = document.getElementById("sellLocations").value;
+                const locationData = productData.find(p => p.terminal_name === selectedLocation && p.commodity_name === selectedProductData.commodity_name);
+                if (locationData) {
+                    document.getElementById("price").value = locationData.price_sell.toLocaleString("fr-FR") + " UEC";
+                    selectedProductData.price_sell = locationData.price_sell;
+                    calculateTotal();
+                }
+            }
+        }
+
+        function populateSellLocations() {
+            const sellLocations = document.getElementById("sellLocations");
+            sellLocations.innerHTML = "";  // Clear previous locations
+            const productLocations = productData.filter(p => p.commodity_name === selectedProductData.commodity_name);
+            const uniqueLocations = [...new Set(productLocations.map(p => p.terminal_name))];
+            uniqueLocations.forEach(location => {
+                const option = document.createElement("option");
+                option.value = location;
+                option.text = location;
+                sellLocations.add(option);
+            });
         }
 
         function calculateTotal() {
@@ -197,9 +212,11 @@
             const scu = document.getElementById("scu").value;
             const price = selectedProductData ? selectedProductData.price_sell : 0;
             const total = scu * price;
+            const sellLocation = document.getElementById("sellLocations").value;
 
             if (productName && scu) {
-                const productList = document.getElementById("productList");
+                const productListElement = document.getElementById("productList");
+
                 const productItem = document.createElement("div");
                 productItem.classList.add("product-item");
 
@@ -208,10 +225,15 @@
                     <p>Quantité (SCU) : ${scu}</p>
                     <p>Prix unitaire : ${price.toLocaleString("fr-FR")} UEC</p>
                     <p>Total : ${total.toLocaleString("fr-FR")} UEC</p>
+                    <p>Où vendre : ${sellLocation}</p>
                     <button onclick="removeProduct(this)">Supprimer ce produit</button>
                 `;
 
-                productList.appendChild(productItem);
+                productListElement.appendChild(productItem);
+
+                // Ajouter le produit à la liste des produits
+                productList.push({ productName, scu, price, total, sellLocation });
+                updateFinalTotal();
 
                 // Réinitialiser les champs après ajout
                 document.getElementById("productName").value = "";
@@ -220,14 +242,24 @@
                 document.getElementById("sellLocations").innerHTML = "";
                 document.getElementById("total").innerText = "Total : 0 UEC";
                 selectedProductData = null;
-            } else {
-                alert("Veuillez entrer le nom du produit et la quantité SCU.");
             }
         }
 
         function removeProduct(button) {
             const productItem = button.parentElement;
+            const productName = productItem.querySelector('h3').innerText;
+            const total = parseFloat(productItem.querySelector('p:nth-child(4)').innerText.replace('Total : ', '').replace(' UEC', '').replace(/ /g, ''));
+
             productItem.remove();
+
+            // Retirer le produit de la liste et mettre à jour le total final
+            productList = productList.filter(p => p.productName !== productName || p.total !== total);
+            updateFinalTotal();
+        }
+
+        function updateFinalTotal() {
+            const finalTotal = productList.reduce((sum, product) => sum + product.total, 0);
+            document.getElementById("finalTotal").innerText = "Total final : " + finalTotal.toLocaleString("fr-FR") + " UEC";
         }
 
         // Fetch data when the page loads
