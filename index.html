@@ -275,13 +275,12 @@
 
         function removeProduct(button) {
             const productItem = button.parentElement;
-            const productName = productItem.querySelector('h3').innerText;
             const total = parseFloat(productItem.querySelector('p:nth-child(4)').innerText.replace('Total : ', '').replace(' UEC', '').replace(/ /g, ''));
 
             productItem.remove();
 
             // Retirer le produit de la liste et mettre à jour le total final
-            productList = productList.filter(p => !(p.productName === productName && p.total === total));
+            productList = productList.filter(p => p.total !== total);
             updateFinalTotal();
 
             // Cacher le bouton "Tout effacer" si aucun produit n'est présent
