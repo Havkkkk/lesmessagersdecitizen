@@ -144,6 +144,7 @@
         let productData = [];
         let productList = [];
 
+        // Fonction pour récupérer les données produits depuis l'API
         async function fetchProductData() {
             try {
                 const response = await fetch('https://uexcorp.space/api/2.0/commodities_prices_all');
@@ -154,6 +155,7 @@
             }
         }
 
+        // Fonction pour afficher les suggestions de produits
         function fetchProductSuggestions() {
             const input = document.getElementById("productName").value.toLowerCase();
             const suggestionsContainer = document.getElementById("suggestions");
@@ -179,11 +181,13 @@
             }
         }
 
+        // Fonction pour sélectionner un produit et remplir les localisations de vente
         function selectProduct(product) {
             document.getElementById("productName").value = product.commodity_name;
             populateSellLocations(product);
         }
 
+        // Fonction pour remplir les localisations de vente disponibles pour un produit
         function populateSellLocations(product) {
             const sellLocations = document.getElementById("sellLocations");
             sellLocations.innerHTML = "";
@@ -206,6 +210,7 @@
             }
         }
 
+        // Fonction pour mettre à jour le prix en fonction de la localisation de vente sélectionnée
         function updatePrice() {
             const productName = document.getElementById("productName").value;
             const sellLocation = document.getElementById("sellLocations").value;
@@ -218,6 +223,7 @@
             }
         }
 
+        // Fonction pour mettre à jour le total en fonction de la quantité et du prix unitaire
         function updateTotal() {
             const scu = parseFloat(document.getElementById("scu").value) || 0;
             const price = parseFloat(document.getElementById("price").value.replace(' UEC', '').replace(/ /g, '')) || 0;
@@ -225,28 +231,32 @@
             document.getElementById("total").innerText = "Total : " + formatNumber(total) + " UEC";
         }
 
+        // Fonction pour formater les nombres avec séparateurs de milliers et deux décimales
         function formatNumber(number) {
-            return number.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            return new Intl.NumberFormat('fr-FR', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(number);
         }
 
+        // Fonction pour ajouter un produit à la liste
         function addProduct() {
             const productName = document.getElementById("productName").value;
             const scu = parseFloat(document.getElementById("scu").value) || 0;
             const price = parseFloat(document.getElementById("price").value.replace(' UEC', '').replace(/ /g, '')) || 0;
-            const total = scu * price;
             const sellLocation = document.getElementById("sellLocations").value;
+            const total = scu * price;
 
             if (productName && scu && price) {
                 const productListElement = document.getElementById("productList");
 
                 const productItem = document.createElement("div");
                 productItem.classList.add("product-item");
-
                 productItem.innerHTML = `
-                    <h3>${productName}</h3>
-                    <p>Quantité : ${scu}</p>
+                    <p>Produit : ${productName}</p>
+                    <p>Quantité (SCU) : ${scu}</p>
                     <p>Prix unitaire : ${formatNumber(price)} UEC</p>
-                    <p class="location">Où vendre : ${sellLocation}</p>
+                    <p>Où vendre : ${sellLocation}</p>
                     <p>Total : ${formatNumber(total)} UEC</p>
                     <button class="remove-button" onclick="removeProduct(this)">Supprimer ce produit</button>
                 `;
@@ -263,15 +273,18 @@
             }
         }
 
+        // Fonction pour supprimer un produit de la liste
         function removeProduct(button) {
             const productItem = button.parentElement;
-            const total = parseFloat(productItem.querySelector('p:nth-child(4)').innerText.replace('Total : ', '').replace(' UEC', '').replace(/ /g, ''));
-
+            const productTotal = parseFloat(productItem.querySelector('p:nth-child(5)').innerText.replace('Total : ', '').replace(' UEC', '').replace(/ /g, ''));
             productItem.remove();
-            productList = productList.filter(p => p.total !== total);
+
+            productList = productList.filter(p => p.total !== productTotal);
+
             updateFinalTotal();
         }
 
+        // Fonction pour mettre à jour le total final de tous les produits
         function updateFinalTotal() {
             const finalTotal = productList.reduce((sum, product) => sum + product.total, 0);
             document.getElementById("finalTotal").innerText = "Total final : " + formatNumber(finalTotal) + " UEC";
