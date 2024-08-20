@@ -131,6 +131,9 @@
             text-align: center;
             margin-top: 20px;
         }
+        .clear-button-container button {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -250,9 +253,14 @@
             uniqueLocations.forEach(location => {
                 const option = document.createElement("option");
                 option.value = location;
-                option.innerText = location;
+                option.textContent = location;
                 sellLocations.appendChild(option);
             });
+            // Automatically select the first location if available
+            if (uniqueLocations.length > 0) {
+                sellLocations.value = uniqueLocations[0];
+                updatePrice();
+            }
         }
 
         function calculateTotal() {
@@ -269,7 +277,7 @@
             const total = scu * price;
             const sellLocation = document.getElementById("sellLocations").value;
 
-            if (productName && scu) {
+            if (productName && scu && price) {
                 const productListElement = document.getElementById("productList");
 
                 const productItem = document.createElement("div");
