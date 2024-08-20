@@ -233,8 +233,7 @@
         // Fonction pour formater les nombres avec séparateurs de milliers et deux décimales
         function formatNumber(number) {
             return new Intl.NumberFormat('fr-FR', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
+                minimumFractionDigits: 2
             }).format(number);
         }
 
