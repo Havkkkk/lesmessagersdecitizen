@@ -16,13 +16,14 @@
         }
         .container {
             max-width: 1000px;
-            height: 100vh; /* Full viewport height */
+            height: calc(100vh - 50px); /* Adjust height to fit the footer */
             margin: 0 auto;
             background-color: rgba(255, 255, 255, 0.9);
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 15px rgba(0,0,0,0.3);
             overflow-y: auto; /* Enable vertical scroll if content exceeds viewport height */
+            position: relative; /* Position relative to contain the footer */
         }
         h1 {
             text-align: center;
@@ -84,6 +85,7 @@
             white-space: nowrap;
             padding: 10px 0;
             gap: 20px;
+            height: calc(100% - 120px); /* Adjust height to leave space for form and total */
         }
         .product-item {
             background-color: #f9f9f9;
@@ -118,6 +120,16 @@
         button {
             cursor: pointer;
         }
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            border-top: 1px solid #ddd;
+            padding: 10px 20px;
+            box-shadow: 0 -1px 5px rgba(0,0,0,0.1);
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -151,10 +163,10 @@
 
         <button onclick="addProduct()">Ajouter un produit</button>
         <button onclick="clearProducts()">Tout effacer</button>
+    </div>
 
-        <div class="total">
-            <span id="finalTotal">Total final : 0 UEC</span>
-        </div>
+    <div class="footer">
+        <span id="finalTotal">Total final : 0 UEC</span>
     </div>
 
     <script>
@@ -234,18 +246,14 @@
             uniqueLocations.forEach(location => {
                 const option = document.createElement("option");
                 option.value = location;
-                option.text = location;
-                sellLocations.add(option);
+                option.innerText = location;
+                sellLocations.appendChild(option);
             });
-            if (uniqueLocations.length > 0) {
-                sellLocations.value = uniqueLocations[0];
-            }
-            updatePrice();  // Ensure the price is updated for the default selection
         }
 
         function calculateTotal() {
-            const scu = document.getElementById("scu").value || 0;
-            const price = selectedProductData ? selectedProductData.price_sell : 0;
+            const scu = parseFloat(document.getElementById("scu").value) || 0;
+            const price = parseFloat(selectedProductData?.price_sell) || 0;
             const total = scu * price;
             document.getElementById("total").innerText = "Total : " + total.toLocaleString("fr-FR") + " UEC";
         }
