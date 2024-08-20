@@ -43,6 +43,24 @@
             border-radius: 5px;
             box-sizing: border-box;
         }
+        .autocomplete-suggestions {
+            position: absolute;
+            border: 1px solid #ccc;
+            border-top: none;
+            max-height: 150px;
+            overflow-y: auto;
+            background-color: #fff;
+            z-index: 1000;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .autocomplete-suggestion {
+            padding: 10px;
+            cursor: pointer;
+        }
+        .autocomplete-suggestion:hover {
+            background-color: #eee;
+        }
         .product-list {
             display: flex;
             flex-wrap: wrap;
@@ -74,26 +92,6 @@
             padding: 5px;
             cursor: pointer;
         }
-
-        .autocomplete-suggestions {
-            position: absolute;
-            border: 1px solid #ccc;
-            border-top: none;
-            max-height: 150px;
-            overflow-y: auto;
-            background-color: #fff;
-            z-index: 1000;
-            width: 100%;
-            box-sizing: border-box;
-        }
-        .autocomplete-suggestion {
-            padding: 10px;
-            cursor: pointer;
-        }
-        .autocomplete-suggestion:hover {
-            background-color: #eee;
-        }
-        
         .footer {
             background: rgba(255, 255, 255, 0.9);
             border-top: 1px solid #ddd;
@@ -110,7 +108,7 @@
         <h1>Calculateur de Produits</h1>
         <div class="form-group">
             <label for="productName">Nom du produit :</label>
-            <input type="text" id="productName" placeholder="Entrez le nom du produit" oninput="fetchProductSuggestions()">
+            <input type="text" id="productName" placeholder="Entrez le nom du produit" oninput="fetchProductSuggestions()" autocomplete="off">
             <div id="suggestions" class="autocomplete-suggestions"></div>
         </div>
         <div class="form-group">
@@ -161,6 +159,7 @@
                         const selectedProduct = filteredProducts.find(p => p.commodity_name === name);
                         selectProduct(selectedProduct);
                         suggestionsContainer.innerHTML = "";
+                        document.getElementById("productName").focus();  // Redonne le focus à l'input
                     };
                     suggestionsContainer.appendChild(suggestion);
                 });
@@ -212,18 +211,20 @@
             const total = scu * price;
             if (productName && scu && price) {
                 const productListElement = document.getElementById("productList");
+                const productId = Date.now(); // Générer un ID unique pour chaque produit
                 const productItem = document.createElement("div");
                 productItem.classList.add("product-item");
+                productItem.dataset.productId = productId;
                 productItem.innerHTML = `
                     <p>Produit : ${productName}</p>
                     <p>Quantité (SCU) : ${scu.toLocaleString('fr-FR')}</p>
                     <p>Prix unitaire : ${price.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} UEC</p>
                     <p class="location">Où vendre : ${sellLocation}</p>
                     <p>Total : ${total.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} UEC</p>
-                    <button class="remove-button" onclick="removeProduct(this)">Supprimer ce produit</button>
+                    <button class="remove-button" onclick="removeProduct(${productId})">Supprimer ce produit</button>
                 `;
                 productListElement.appendChild(productItem);
-                productList.push({ productName, scu, price, total, sellLocation });
+                productList.push({ id: productId, productName, scu, price, total, sellLocation });
                 updateFinalTotal();
                 document.getElementById("productName").value = "";
                 document.getElementById("scu").value = "";
@@ -232,12 +233,15 @@
                 document.getElementById("total").innerText = "Total : 0 UEC";
             }
         }
-        function removeProduct(button) {
-            const productItem = button.parentElement;
-            const totalText = productItem.querySelector('p:nth-child(5)').innerText.replace('Total : ', '').replace(' UEC', '').replace(/ /g, '');
-            const total = parseFloat(totalText);
-            productItem.remove();
-            productList = productList.filter(p => p.total !== total);
+        function removeProduct(productId) {
+            // Supprimer le produit de la liste
+            productList = productList.filter(product => product.id !== productId);
+            // Supprimer l'élément HTML associé
+            const productItem = document.querySelector(`.product-item[data-product-id="${productId}"]`);
+            if (productItem) {
+                productItem.remove();
+            }
+            // Mettre à jour le total final
             updateFinalTotal();
         }
         function updateFinalTotal() {
