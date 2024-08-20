@@ -7,31 +7,39 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 50px;
+            margin: 20px;
             background-color: #f0f0f0;
         }
         .container {
+            max-width: 800px;
+            margin: auto;
             background-color: #fff;
             padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            max-width: 500px;
-            margin: auto;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
         }
         h1 {
             text-align: center;
             color: #333;
         }
         .product {
+            background-color: #f9f9f9;
+            padding: 15px;
             margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
         }
-        label {
+        .product h2 {
+            margin-bottom: 15px;
+            color: #444;
+        }
+        .product label {
             display: block;
-            margin: 10px 0 5px;
+            margin: 8px 0 4px;
             font-weight: bold;
         }
-        input[type="text"] {
-            width: 100%;
+        .product input[type="text"] {
+            width: calc(100% - 20px);
             padding: 10px;
             margin-bottom: 10px;
             border: 1px solid #ccc;
@@ -41,8 +49,8 @@
         .result {
             font-size: 1.2em;
             font-weight: bold;
-            margin-top: 10px;
             text-align: right;
+            margin-top: 10px;
         }
         .total {
             font-size: 1.5em;
@@ -58,7 +66,8 @@
 
         <!-- Produit 1 -->
         <div class="product">
-            <label for="product1">Produit 1 :</label>
+            <h2>Produit 1</h2>
+            <label for="product1-name">Nom du produit :</label>
             <input type="text" id="product1-name" value="Weavil eggs" disabled>
 
             <label for="scu1">Quantité (SCU) :</label>
@@ -67,12 +76,16 @@
             <label for="price1">Prix unitaire :</label>
             <input type="text" id="price1" value="112 500" disabled>
 
+            <label for="sell1">Où vendre :</label>
+            <input type="text" id="sell1" value="Marché Central" disabled>
+
             <div class="result" id="total1">Total : 0 UEC</div>
         </div>
 
         <!-- Produit 2 -->
         <div class="product">
-            <label for="product2">Produit 2 :</label>
+            <h2>Produit 2</h2>
+            <label for="product2-name">Nom du produit :</label>
             <input type="text" id="product2-name" value="Moro eggs" disabled>
 
             <label for="scu2">Quantité (SCU) :</label>
@@ -81,12 +94,16 @@
             <label for="price2">Prix unitaire :</label>
             <input type="text" id="price2" value="80 000" disabled>
 
+            <label for="sell2">Où vendre :</label>
+            <input type="text" id="sell2" value="Spaceport 17" disabled>
+
             <div class="result" id="total2">Total : 0 UEC</div>
         </div>
 
         <!-- Produit 3 -->
         <div class="product">
-            <label for="product3">Produit 3 :</label>
+            <h2>Produit 3</h2>
+            <label for="product3-name">Nom du produit :</label>
             <input type="text" id="product3-name" value="Kibrut eggs" disabled>
 
             <label for="scu3">Quantité (SCU) :</label>
@@ -94,6 +111,9 @@
 
             <label for="price3">Prix unitaire :</label>
             <input type="text" id="price3" value="150 000" disabled>
+
+            <label for="sell3">Où vendre :</label>
+            <input type="text" id="sell3" value="Trade Post Z42" disabled>
 
             <div class="result" id="total3">Total : 0 UEC</div>
         </div>
