@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculateur de Weavil Eggs</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 50px;
+            background-color: #f0f0f0;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            max-width: 400px;
+            margin: auto;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: bold;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        .result {
+            font-size: 1.5em;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Calculateur de Weavil Eggs</h1>
+        <label for="description">Produit :</label>
+        <input type="text" id="description" value="Weavil eggs" disabled>
+
+        <label for="scu">Quantité (SCU) :</label>
+        <input type="text" id="scu" placeholder="Entrez la quantité en SCU" oninput="calculateTotal()">
+
+        <label for="price">Prix unitaire :</label>
+        <input type="text" id="price" value="112 500" disabled>
+
+        <div class="result" id="total">Total : 0</div>
+    </div>
+
+    <script>
+        function calculateTotal() {
+            const scu = document.getElementById("scu").value;
+            const price = 112500;
+            const total = scu * price;
+            document.getElementById("total").innerText = "Total : " + total.toLocaleString("fr-FR") + " UEC";
+        }
+    </script>
+</body>
+</html>
