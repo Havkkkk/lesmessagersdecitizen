@@ -228,8 +228,8 @@
 
         // Fonction pour mettre à jour le total en fonction de la quantité et du prix unitaire
         function updateTotal() {
-            const scu = parseFloat(document.getElementById("scu").value.replace(/ /g, '')) || 0;
-            const price = parseFloat(document.getElementById("price").value.replace(' UEC', '').replace(/ /g, '')) || 0;
+            const scu = parseFloat(document.getElementById("scu").value;
+            const price = parseFloat(document.getElementById("price").value;
             const total = scu * price;
             document.getElementById("total").innerText = "Total : " + formatNumber(total) + " UEC";
         }
