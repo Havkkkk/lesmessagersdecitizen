@@ -61,8 +61,28 @@
             padding: 12px;
             text-align: left;
         }
-        th {
+        th.sortable {
+            cursor: pointer;
+            position: relative;
             background-color: #f4f4f4;
+            transition: background-color 0.3s;
+        }
+        th.sortable:hover {
+            background-color: #e0e0e0;
+        }
+        th.sortable::after {
+            content: ' ⇅';
+            font-size: 0.8em;
+            color: #555;
+            margin-left: 5px;
+        }
+        th.sorted-asc::after {
+            content: ' ▲';
+            color: #007bff;
+        }
+        th.sorted-desc::after {
+            content: ' ▼';
+            color: #007bff;
         }
         tr:nth-child(even) {
             background-color: #f9f9f9;
@@ -82,11 +102,10 @@
         <table id="vaisseauxTable">
             <thead>
                 <tr>
-                    <th>Nom du Vaisseau</th>
-                    <th>Catégorie</th>
-                    <th>Nombre de SCU</th>
-                    <th>Équipage (Crew)</th>
-                    <th>Prix de Vente</th>
+                    <th class="sortable" onclick="sortTable(0, 'string')">Nom du Vaisseau</th>
+                    <th class="sortable" onclick="sortTable(1, 'number')">Nombre de SCU</th>
+                    <th class="sortable" onclick="sortTable(2, 'number')">Équipage (Crew)</th>
+                    <th class="sortable" onclick="sortTable(3, 'number')">Prix de Vente</th>
                     <th>Ville de Vente</th>
                 </tr>
             </thead>
@@ -100,15 +119,10 @@
 
         async function fetchData() {
             try {
-                // Appel API pour récupérer les données des vaisseaux
                 const responseVehicles = await fetch('https://uexcorp.space/api/2.0/vehicles');
                 const vehicles = await responseVehicles.json();
-
-                // Appel API pour récupérer les prix et villes de vente
                 const responsePrices = await fetch('https://uexcorp.space/api/2.0/vehicles_purchases_prices');
                 const prices = await responsePrices.json();
-
-                // Traitement et affichage des données
                 vehiclesData = processData(vehicles.data, prices.data);
                 populateTable(vehiclesData);
             } catch (error) {
@@ -120,49 +134,12 @@
             const vehicleMap = new Map();
 
             vehiclesData.forEach(vehicle => {
-                const categories = [];
-
-                // Analyse des catégories en fonction des indicateurs "is_"
-                if (vehicle.is_addon) categories.push("Module complémentaire");
-                if (vehicle.is_concept) categories.push("Concept");
-                if (vehicle.is_civilian) categories.push("Civil");
-                if (vehicle.is_military) categories.push("Militaire");
-                if (vehicle.is_exploration) categories.push("Exploration");
-                if (vehicle.is_passenger) categories.push("Passager");
-                if (vehicle.is_industrial) categories.push("Industriel");
-                if (vehicle.is_mining) categories.push("Minage");
-                if (vehicle.is_salvage) categories.push("Récupération");
-                if (vehicle.is_refinery) categories.push("Raffinerie");
-                if (vehicle.is_scanning) categories.push("Scan");
-                if (vehicle.is_cargo) categories.push("Cargo");
-                if (vehicle.is_medical) categories.push("Médical");
-                if (vehicle.is_racing) categories.push("Course");
-                if (vehicle.is_repair) categories.push("Réparation");
-                if (vehicle.is_refuel) categories.push("Ravitaillement");
-                if (vehicle.is_interdiction) categories.push("Interdiction");
-                if (vehicle.is_bomber) categories.push("Bombardier");
-                if (vehicle.is_tractor_beam) categories.push("Rayon tracteur");
-                if (vehicle.is_qed) categories.push("QED");
-                if (vehicle.is_emp) categories.push("EMP");
-                if (vehicle.is_construction) categories.push("Construction");
-                if (vehicle.is_datarunner) categories.push("Transfert de données");
-                if (vehicle.is_science) categories.push("Science");
-                if (vehicle.is_boarding) categories.push("Abordage");
-                if (vehicle.is_stealth) categories.push("Furtif");
-                if (vehicle.is_research) categories.push("Recherche");
-                if (vehicle.is_carrier) categories.push("Porte-vaisseaux");
-                if (vehicle.is_ground_vehicle) categories.push("Véhicule terrestre");
-                if (vehicle.is_docking) categories.push("Amarrage");
-                if (vehicle.is_loading_dock) categories.push("Quai de chargement");
-                if (vehicle.is_showdown_winner) categories.push("Gagnant du Showdown");
-
                 vehicleMap.set(vehicle.id, {
                     name: vehicle.name,
-                    category: categories.join(', ') || "N/A",  // Joint les catégories en une seule chaîne de caractères
                     scu: vehicle.scu || "N/A",
                     crew: formatCrew(vehicle.crew),
-                    price: "N/A", // Valeur par défaut
-                    city: [] // Tableau pour stocker les villes
+                    price: "N/A",
+                    city: []
                 });
             });
 
@@ -174,7 +151,6 @@
                 }
             });
 
-            // Filtrer les vaisseaux qui ont un prix
             return [...vehicleMap.values()].filter(vehicle => vehicle.price !== "N/A");
         }
 
@@ -186,7 +162,6 @@
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${vehicle.name || "N/A"}</td>
-                    <td>${vehicle.category || "N/A"}</td>
                     <td>${vehicle.scu || "N/A"}</td>
                     <td>${vehicle.crew || "N/A"}</td>
                     <td>${vehicle.price}</td>
@@ -197,15 +172,10 @@
         }
 
         function formatCrew(crew) {
-            if (!crew) {
-                return "N/A";
-            }
+            if (!crew) return "N/A";
             const crewParts = crew.replace(/\s+/g, '').split(',');
-            if (crewParts.length === 1) {
-                return `${crewParts[0]} joueur${crewParts[0] > 1 ? 's' : ''}`;
-            } else if (crewParts.length === 2) {
-                return `${crewParts[0]} - ${crewParts[1]} joueurs`;
-            }
+            if (crewParts.length === 1) return `${crewParts[0]} joueur${crewParts[0] > 1 ? 's' : ''}`;
+            if (crewParts.length === 2) return `${crewParts[0]} - ${crewParts[1]} joueurs`;
             return "N/A";
         }
 
@@ -216,15 +186,32 @@
         function filterTable() {
             const query = document.getElementById('searchBox').value.toLowerCase();
             const rows = document.querySelectorAll('#vaisseauxTable tbody tr');
-            
             rows.forEach(row => {
                 const name = row.querySelector('td').textContent.toLowerCase();
-                if (name.includes(query)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
+                row.style.display = name.includes(query) ? '' : 'none';
             });
+        }
+
+        function sortTable(columnIndex, type) {
+            const table = document.getElementById("vaisseauxTable");
+            const tbody = table.tBodies[0];
+            const rows = Array.from(tbody.rows);
+            const isAscending = !table.dataset.sortOrder || table.dataset.sortOrder === "desc";
+            table.dataset.sortOrder = isAscending ? "asc" : "desc";
+
+            rows.sort((a, b) => {
+                const cellA = a.cells[columnIndex].innerText.replace(/\s/g, '');
+                const cellB = b.cells[columnIndex].innerText.replace(/\s/g, '');
+
+                const valA = type === 'number' ? parseFloat(cellA) || 0 : cellA.toLowerCase();
+                const valB = type === 'number' ? parseFloat(cellB) || 0 : cellB.toLowerCase();
+
+                if (valA < valB) return isAscending ? -1 : 1;
+                if (valA > valB) return isAscending ? 1 : -1;
+                return 0;
+            });
+
+            rows.forEach(row => tbody.appendChild(row));
         }
 
         window.onload = fetchData;
