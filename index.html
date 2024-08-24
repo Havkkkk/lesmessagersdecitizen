@@ -75,9 +75,6 @@
     </style>
 </head>
 <body>
-    <div class="header">
-        <button id="authButton"></button>
-    </div>
     <div class="container">
         <div class="card">
             <img src="./nanar.webp" alt="Calcul Marchandise">
@@ -92,25 +89,5 @@
             <a href="liste-vaisseaux.html">Voir la liste</a>
         </div>
     </div>
-
-    <script>
-        // Simuler l'état de connexion
-        const isLoggedIn = false; // Changez cette valeur selon l'état de connexion
-
-        const authButton = document.getElementById('authButton');
-
-        if (isLoggedIn) {
-            authButton.textContent = "Se déconnecter";
-            authButton.onclick = () => {
-                // Ajouter ici la logique de déconnexion
-                alert("Déconnexion réussie");
-            };
-        } else {
-            authButton.textContent = "Connexion";
-            authButton.onclick = () => {
-                window.location.href = "login.html"; // Redirige vers la page de connexion
-            };
-        }
-    </script>
 </body>
 </html>
