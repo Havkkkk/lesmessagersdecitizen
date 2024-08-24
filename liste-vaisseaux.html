@@ -172,7 +172,7 @@
             vehiclesData.forEach(vehicle => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td><img src="${vehicle.imageUrl}" alt="${vehicle.name}" width="100" height="100"></td>
+                    <td><img src="${vehicle.imageUrl}" alt="${vehicle.name}"height="150"></td>
                     <td><a href="${vehicle.storeUrl}" target="_blank">${vehicle.name || "N/A"}</a></td>
                     <td>${vehicle.scu || "N/A"}</td>
                     <td>${vehicle.crew || "N/A"}</td>
