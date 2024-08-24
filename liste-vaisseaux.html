@@ -108,7 +108,7 @@
             <thead>
                 <tr>
                     <th>Image</th>
-                    <th>Nom du Vaisseau</th>
+                    <th class="sortable" onclick="sortTable(0, 'string')">Nom du Vaisseau</th>
                     <th class="sortable" onclick="sortTable(1, 'number')">Nombre de SCU</th>
                     <th class="sortable" onclick="sortTable(2, 'number')">Équipage (Crew)</th>
                     <th class="sortable" onclick="sortTable(3, 'number')">Prix de Vente</th>
@@ -141,6 +141,7 @@
 
             vehiclesData.forEach(vehicle => {
                 const imageUrl = vehicle.url_photos ? JSON.parse(vehicle.url_photos.replace(/\\/g, ''))[0] : '';
+                const storeUrl = vehicle.url_store ? vehicle.url_store.replace(/\\/g, '') : '';
 
                 vehicleMap.set(vehicle.id, {
                     name: vehicle.name,
@@ -148,7 +149,8 @@
                     crew: formatCrew(vehicle.crew),
                     price: "N/A",
                     city: [],
-                    imageUrl: imageUrl
+                    imageUrl: imageUrl,
+                    storeUrl: storeUrl
                 });
             });
 
@@ -170,8 +172,8 @@
             vehiclesData.forEach(vehicle => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td><img src="${vehicle.imageUrl}" alt="${vehicle.name}" height="130"></td>
-                    <td>${vehicle.name || "N/A"}</td>
+                    <td><img src="${vehicle.imageUrl}" alt="${vehicle.name}" width="100" height="100"></td>
+                    <td><a href="${vehicle.storeUrl}" target="_blank">${vehicle.name || "N/A"}</a></td>
                     <td>${vehicle.scu || "N/A"}</td>
                     <td>${vehicle.crew || "N/A"}</td>
                     <td>${vehicle.price}</td>
@@ -210,7 +212,7 @@
             table.dataset.sortOrder = isAscending ? "asc" : "desc";
 
             rows.sort((a, b) => {
-                const cellA = a.cells[columnIndex + 1].innerText.replace(/\s/g, '');  // Adjusted columnIndex to account for the image column
+                const cellA = a.cells[columnIndex + 1].innerText.replace(/\s/g, '');
                 const cellB = b.cells[columnIndex + 1].innerText.replace(/\s/g, '');
 
                 const valA = type === 'number' ? parseFloat(cellA) || 0 : cellA.toLowerCase();
