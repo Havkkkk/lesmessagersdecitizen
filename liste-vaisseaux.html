@@ -90,6 +90,11 @@
         tr:hover {
             background-color: #f1f1f1;
         }
+        img {
+            vertical-align: middle;
+            margin-right: 10px;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -102,7 +107,8 @@
         <table id="vaisseauxTable">
             <thead>
                 <tr>
-                    <th class="sortable" onclick="sortTable(0, 'string')">Nom du Vaisseau</th>
+                    <th>Image</th>
+                    <th>Nom du Vaisseau</th>
                     <th class="sortable" onclick="sortTable(1, 'number')">Nombre de SCU</th>
                     <th class="sortable" onclick="sortTable(2, 'number')">Équipage (Crew)</th>
                     <th class="sortable" onclick="sortTable(3, 'number')">Prix de Vente</th>
@@ -134,12 +140,15 @@
             const vehicleMap = new Map();
 
             vehiclesData.forEach(vehicle => {
+                const imageUrl = vehicle.url_photos ? JSON.parse(vehicle.url_photos.replace(/\\/g, ''))[0] : '';
+
                 vehicleMap.set(vehicle.id, {
                     name: vehicle.name,
                     scu: vehicle.scu || "N/A",
                     crew: formatCrew(vehicle.crew),
                     price: "N/A",
-                    city: []
+                    city: [],
+                    imageUrl: imageUrl
                 });
             });
 
@@ -161,6 +170,7 @@
             vehiclesData.forEach(vehicle => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
+                    <td><img src="${vehicle.imageUrl}" alt="${vehicle.name}" height="130"></td>
                     <td>${vehicle.name || "N/A"}</td>
                     <td>${vehicle.scu || "N/A"}</td>
                     <td>${vehicle.crew || "N/A"}</td>
@@ -187,7 +197,7 @@
             const query = document.getElementById('searchBox').value.toLowerCase();
             const rows = document.querySelectorAll('#vaisseauxTable tbody tr');
             rows.forEach(row => {
-                const name = row.querySelector('td').textContent.toLowerCase();
+                const name = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
                 row.style.display = name.includes(query) ? '' : 'none';
             });
         }
@@ -200,8 +210,8 @@
             table.dataset.sortOrder = isAscending ? "asc" : "desc";
 
             rows.sort((a, b) => {
-                const cellA = a.cells[columnIndex].innerText.replace(/\s/g, '');
-                const cellB = b.cells[columnIndex].innerText.replace(/\s/g, '');
+                const cellA = a.cells[columnIndex + 1].innerText.replace(/\s/g, '');  // Adjusted columnIndex to account for the image column
+                const cellB = b.cells[columnIndex + 1].innerText.replace(/\s/g, '');
 
                 const valA = type === 'number' ? parseFloat(cellA) || 0 : cellA.toLowerCase();
                 const valB = type === 'number' ? parseFloat(cellB) || 0 : cellB.toLowerCase();
