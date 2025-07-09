@@ -82,6 +82,10 @@
         .product-item .location {
             font-style: italic;
         }
+        .product-item .system {
+            font-weight: bold;
+            color: #007bff;
+        }
         .product-item .remove-button {
             position: absolute;
             top: 10px;
@@ -123,6 +127,24 @@
         .header a:hover {
             text-decoration: underline;
         }
+        .location-option {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .system-badge {
+            background: #007bff;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.8em;
+            margin-left: 10px;
+        }
+        .loading {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -146,7 +168,9 @@
         </div>
         <div class="form-group">
             <label for="sellLocations">Où vendre :</label>
-            <select id="sellLocations" onchange="updatePrice()"></select>
+            <select id="sellLocations" onchange="updatePrice()">
+                <option value="">Sélectionnez un produit d'abord</option>
+            </select>
         </div>
         <div class="result" id="total">Total : 0 UEC</div>
         <button id="addProductButton" onclick="addProduct()">Ajouter un produit</button>
@@ -157,25 +181,119 @@
     </div>
     <script>
         let productData = [];
+        let terminalsData = [];
         let productList = [];
+        let isLoading = false;
+
+        // Fonction pour obtenir le système depuis le nom du terminal
+        function getSystemFromTerminal(terminalName) {
+            const terminal = terminalsData.find(t => t.name === terminalName);
+            return terminal ? terminal.system : 'Inconnu';
+        }
+
         async function fetchProductData() {
+            if (isLoading) return;
+            isLoading = true;
+            
             try {
-                const response = await fetch('https://uexcorp.space/api/2.0/commodities_prices_all');
-                const result = await response.json();
-                productData = result.data || [];
+                // Récupération des données des commodités
+                const commoditiesResponse = await fetch('https://uexcorp.space/api/2.0/commodities_prices_all');
+                const commoditiesResult = await commoditiesResponse.json();
+                productData = commoditiesResult.data || [];
+
+                // Récupération des données des terminaux pour obtenir les systèmes
+                try {
+                    const terminalsResponse = await fetch('https://uexcorp.space/api/2.0/terminals');
+                    const terminalsResult = await terminalsResponse.json();
+                    terminalsData = terminalsResult.data || [];
+                } catch (terminalError) {
+                    console.log("Impossible de récupérer les données des terminaux, utilisation des données par défaut");
+                    // Création d'un mapping basique pour les terminaux les plus courants
+                    terminalsData = createDefaultTerminalsMapping();
+                }
+
             } catch (error) {
                 console.error("Erreur lors de la récupération des données : ", error);
+            } finally {
+                isLoading = false;
             }
         }
+
+        // Mapping par défaut des terminaux vers les systèmes (à utiliser si l'API terminals n'est pas disponible)
+        function createDefaultTerminalsMapping() {
+            return [
+                // Stanton
+                { name: 'Port Olisar', system: 'Stanton' },
+                { name: 'Area18', system: 'Stanton' },
+                { name: 'Lorville', system: 'Stanton' },
+                { name: 'New Babbage', system: 'Stanton' },
+                { name: 'Grim HEX', system: 'Stanton' },
+                { name: 'Everus Harbor', system: 'Stanton' },
+                { name: 'Baijini Point', system: 'Stanton' },
+                { name: 'Tressler Foundation', system: 'Stanton' },
+                { name: 'CRU-L1', system: 'Stanton' },
+                { name: 'CRU-L4', system: 'Stanton' },
+                { name: 'CRU-L5', system: 'Stanton' },
+                { name: 'HUR-L1', system: 'Stanton' },
+                { name: 'HUR-L2', system: 'Stanton' },
+                { name: 'HUR-L3', system: 'Stanton' },
+                { name: 'HUR-L4', system: 'Stanton' },
+                { name: 'HUR-L5', system: 'Stanton' },
+                { name: 'ARC-L1', system: 'Stanton' },
+                { name: 'MIC-L1', system: 'Stanton' },
+                // Pyro
+                { name: 'Pyro Station Alpha', system: 'Pyro' },
+                { name: 'Ruin Station', system: 'Pyro' },
+                { name: 'Checkmate Station', system: 'Pyro' },
+                { name: 'Shady Glen', system: 'Pyro' },
+                { name: 'Bloom', system: 'Pyro' },
+                { name: 'Terminus', system: 'Pyro' },
+                // Ajoutez d'autres terminaux connus ici
+            ];
+        }
+
+        // Fonction pour extraire le système depuis le nom du terminal (méthode alternative)
+        function extractSystemFromTerminalName(terminalName) {
+            // Essayer d'abord avec les données des terminaux
+            const system = getSystemFromTerminal(terminalName);
+            if (system !== 'Inconnu') {
+                return system;
+            }
+
+            // Si pas trouvé, essayer de déduire depuis le nom
+            const lowerName = terminalName.toLowerCase();
+            
+            // Stations Stanton
+            if (lowerName.includes('olisar') || lowerName.includes('area18') || 
+                lowerName.includes('lorville') || lowerName.includes('babbage') ||
+                lowerName.includes('grim') || lowerName.includes('everus') ||
+                lowerName.includes('cru-') || lowerName.includes('hur-') ||
+                lowerName.includes('arc-') || lowerName.includes('mic-') ||
+                lowerName.includes('baijini') || lowerName.includes('tressler')) {
+                return 'Stanton';
+            }
+            
+            // Stations Pyro
+            if (lowerName.includes('pyro') || lowerName.includes('ruin') ||
+                lowerName.includes('checkmate') || lowerName.includes('shady') ||
+                lowerName.includes('bloom') || lowerName.includes('terminus')) {
+                return 'Pyro';
+            }
+            
+            return 'Inconnu';
+        }
+
         function fetchProductSuggestions() {
             const input = document.getElementById("productName").value.toLowerCase();
             const suggestionsContainer = document.getElementById("suggestions");
             suggestionsContainer.innerHTML = "";
+            
             if (input.length > 1) {
                 const filteredProducts = productData.filter(product =>
                     product.commodity_name.toLowerCase().includes(input)
                 );
                 const uniqueProducts = [...new Set(filteredProducts.map(p => p.commodity_name))];
+                
                 uniqueProducts.forEach(name => {
                     const suggestion = document.createElement("div");
                     suggestion.classList.add("autocomplete-suggestion");
@@ -184,97 +302,120 @@
                         const selectedProduct = filteredProducts.find(p => p.commodity_name === name);
                         selectProduct(selectedProduct);
                         suggestionsContainer.innerHTML = "";
-                        document.getElementById("productName").focus();  // Redonne le focus à l'input
+                        document.getElementById("productName").focus();
                     };
                     suggestionsContainer.appendChild(suggestion);
                 });
             }
         }
+
         function selectProduct(product) {
             document.getElementById("productName").value = product.commodity_name;
             populateSellLocations(product);
         }
+
         function populateSellLocations(product) {
             const sellLocations = document.getElementById("sellLocations");
             sellLocations.innerHTML = "";
+            
             const productLocations = productData
                 .filter(p => p.commodity_name === product.commodity_name)
-                .map(p => ({ name: p.terminal_name, price: p.price_sell }));
-            // Sort locations by price from highest to lowest
+                .map(p => ({
+                    name: p.terminal_name,
+                    price: p.price_sell,
+                    system: extractSystemFromTerminalName(p.terminal_name)
+                }));
+
+            // Trier les locations par prix du plus élevé au plus bas
             productLocations.sort((a, b) => b.price - a.price);
-            // Add locations to the select element
+
+            // Ajouter les locations au select
             productLocations.forEach(loc => {
                 const option = document.createElement("option");
                 option.value = loc.name;
-                option.textContent = `${loc.name} - ${loc.price.toFixed(2)} UEC`;
+                option.textContent = `${loc.name} (${loc.system}) - ${loc.price.toFixed(2)} UEC`;
+                option.dataset.system = loc.system;
                 sellLocations.appendChild(option);
             });
+
             if (productLocations.length > 0) {
-                sellLocations.value = productLocations[0].name; // Set the default value to the first (highest price) location
+                sellLocations.value = productLocations[0].name;
                 updatePrice();
             }
         }
+
         function updatePrice() {
             const productName = document.getElementById("productName").value;
             const sellLocation = document.getElementById("sellLocations").value;
             const locationData = productData.find(p => p.terminal_name === sellLocation && p.commodity_name === productName);
+            
             if (locationData) {
                 const price = locationData.price_sell;
                 document.getElementById("price").value = price.toFixed(2) + " UEC";
                 updateTotal();
             }
         }
+
         function updateTotal() {
             const scu = parseFloat(document.getElementById("scu").value.replace(/ /g, '')) || 0;
             const price = parseFloat(document.getElementById("price").value.replace(' UEC', '').replace(/ /g, '')) || 0;
             const total = scu * price;
             document.getElementById("total").innerText = "Total : " + total.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " UEC";
         }
+
         function addProduct() {
             const productName = document.getElementById("productName").value;
             const scu = parseFloat(document.getElementById("scu").value.replace(/ /g, '')) || 0;
             const price = parseFloat(document.getElementById("price").value.replace(' UEC', '').replace(/ /g, '')) || 0;
             const sellLocation = document.getElementById("sellLocations").value;
+            const system = extractSystemFromTerminalName(sellLocation);
             const total = scu * price;
-            if (productName && scu && price) {
+
+            if (productName && scu && price && sellLocation) {
                 const productListElement = document.getElementById("productList");
-                const productId = Date.now(); // Générer un ID unique pour chaque produit
+                const productId = Date.now();
                 const productItem = document.createElement("div");
                 productItem.classList.add("product-item");
                 productItem.dataset.productId = productId;
                 productItem.innerHTML = `
-                    <p>Produit : ${productName}</p>
-                    <p>Quantité (SCU) : ${scu.toLocaleString('fr-FR')}</p>
-                    <p>Prix unitaire : ${price.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} UEC</p>
-                    <p class="location">Où vendre : ${sellLocation}</p>
-                    <p>Total : ${total.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} UEC</p>
-                    <button class="remove-button" onclick="removeProduct(${productId})">Supprimer ce produit</button>
+                    <p><strong>Produit :</strong> ${productName}</p>
+                    <p><strong>Quantité (SCU) :</strong> ${scu.toLocaleString('fr-FR')}</p>
+                    <p><strong>Prix unitaire :</strong> ${price.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} UEC</p>
+                    <p class="system"><strong>Système :</strong> ${system}</p>
+                    <p class="location"><strong>Où vendre :</strong> ${sellLocation}</p>
+                    <p><strong>Total :</strong> ${total.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} UEC</p>
+                    <button class="remove-button" onclick="removeProduct(${productId})">Supprimer</button>
                 `;
                 productListElement.appendChild(productItem);
-                productList.push({ id: productId, productName, scu, price, total, sellLocation });
+                
+                productList.push({ id: productId, productName, scu, price, total, sellLocation, system });
                 updateFinalTotal();
+                
+                // Réinitialiser les champs
                 document.getElementById("productName").value = "";
                 document.getElementById("scu").value = "";
                 document.getElementById("price").value = "";
-                document.getElementById("sellLocations").innerHTML = "";
+                document.getElementById("sellLocations").innerHTML = '<option value="">Sélectionnez un produit d\'abord</option>';
                 document.getElementById("total").innerText = "Total : 0 UEC";
+            } else {
+                alert("Veuillez remplir tous les champs.");
             }
         }
+
         function removeProduct(productId) {
-            // Supprimer le produit de la liste
             productList = productList.filter(product => product.id !== productId);
-            // Supprimer l'élément HTML associé
             const productItem = document.querySelector(`.product-item[data-product-id="${productId}"]`);
             if (productItem) {
                 productItem.remove();
             }
-            // Mettre à jour le total final
             updateFinalTotal();
         }
+
         function updateFinalTotal() {
             const finalTotal = productList.reduce((sum, product) => sum + product.total, 0);
             document.getElementById("finalTotal").innerText = "Total final : " + finalTotal.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " UEC";
         }
+
         window.onload = fetchProductData;
     </script>
 </body>
