@@ -201,16 +201,9 @@
                 const commoditiesResult = await commoditiesResponse.json();
                 productData = commoditiesResult.data || [];
 
-                // Récupération des données des terminaux pour obtenir les systèmes
-                try {
-                    const terminalsResponse = await fetch('https://uexcorp.space/api/2.0/terminals');
-                    const terminalsResult = await terminalsResponse.json();
-                    terminalsData = terminalsResult.data || [];
-                } catch (terminalError) {
-                    console.log("Impossible de récupérer les données des terminaux, utilisation des données par défaut");
-                    // Création d'un mapping basique pour les terminaux les plus courants
-                    terminalsData = createDefaultTerminalsMapping();
-                }
+                // Utilisation du mapping par défaut pour les terminaux
+                terminalsData = createDefaultTerminalsMapping();
+                console.log("Données des produits chargées :", productData.length, "produits");
 
             } catch (error) {
                 console.error("Erreur lors de la récupération des données : ", error);
@@ -219,36 +212,90 @@
             }
         }
 
-        // Mapping par défaut des terminaux vers les systèmes (à utiliser si l'API terminals n'est pas disponible)
+        // Mapping détaillé des terminaux vers les systèmes, planètes et types
         function createDefaultTerminalsMapping() {
             return [
-                // Stanton
-                { name: 'Port Olisar', system: 'Stanton' },
-                { name: 'Area18', system: 'Stanton' },
-                { name: 'Lorville', system: 'Stanton' },
-                { name: 'New Babbage', system: 'Stanton' },
-                { name: 'Grim HEX', system: 'Stanton' },
-                { name: 'Everus Harbor', system: 'Stanton' },
-                { name: 'Baijini Point', system: 'Stanton' },
-                { name: 'Tressler Foundation', system: 'Stanton' },
-                { name: 'CRU-L1', system: 'Stanton' },
-                { name: 'CRU-L4', system: 'Stanton' },
-                { name: 'CRU-L5', system: 'Stanton' },
-                { name: 'HUR-L1', system: 'Stanton' },
-                { name: 'HUR-L2', system: 'Stanton' },
-                { name: 'HUR-L3', system: 'Stanton' },
-                { name: 'HUR-L4', system: 'Stanton' },
-                { name: 'HUR-L5', system: 'Stanton' },
-                { name: 'ARC-L1', system: 'Stanton' },
-                { name: 'MIC-L1', system: 'Stanton' },
+                // Stanton - Crusader
+                { name: 'Port Olisar', system: 'Stanton', planet: 'Crusader', type: 'Station' },
+                { name: 'CRU-L1', system: 'Stanton', planet: 'Crusader', type: 'Station Lagrange' },
+                { name: 'CRU-L4', system: 'Stanton', planet: 'Crusader', type: 'Station Lagrange' },
+                { name: 'CRU-L5', system: 'Stanton', planet: 'Crusader', type: 'Station Lagrange' },
+                
+                // Stanton - Hurston
+                { name: 'Lorville', system: 'Stanton', planet: 'Hurston', type: 'Ville' },
+                { name: 'Everus Harbor', system: 'Stanton', planet: 'Hurston', type: 'Station' },
+                { name: 'HUR-L1', system: 'Stanton', planet: 'Hurston', type: 'Station Lagrange' },
+                { name: 'HUR-L2', system: 'Stanton', planet: 'Hurston', type: 'Station Lagrange' },
+                { name: 'HUR-L3', system: 'Stanton', planet: 'Hurston', type: 'Station Lagrange' },
+                { name: 'HUR-L4', system: 'Stanton', planet: 'Hurston', type: 'Station Lagrange' },
+                { name: 'HUR-L5', system: 'Stanton', planet: 'Hurston', type: 'Station Lagrange' },
+                
+                // Stanton - ArcCorp
+                { name: 'Area18', system: 'Stanton', planet: 'ArcCorp', type: 'Ville' },
+                { name: 'Baijini Point', system: 'Stanton', planet: 'ArcCorp', type: 'Station' },
+                { name: 'ARC-L1', system: 'Stanton', planet: 'ArcCorp', type: 'Station Lagrange' },
+                
+                // Stanton - microTech
+                { name: 'New Babbage', system: 'Stanton', planet: 'microTech', type: 'Ville' },
+                { name: 'Tressler Foundation', system: 'Stanton', planet: 'microTech', type: 'Station' },
+                { name: 'MIC-L1', system: 'Stanton', planet: 'microTech', type: 'Station Lagrange' },
+                
+                // Stanton - Yela
+                { name: 'Grim HEX', system: 'Stanton', planet: 'Yela', type: 'Station' },
+                
+                // Stanton - Autres locations
+                { name: 'Jumptown', system: 'Stanton', planet: 'Yela', type: 'Avant-poste' },
+                { name: 'Shubin Mining Facility SCD-1', system: 'Stanton', planet: 'Daymar', type: 'Avant-poste' },
+                { name: 'Hickes Research Outpost', system: 'Stanton', planet: 'Arial', type: 'Avant-poste' },
+                { name: 'Samson & Son\'s Salvage Center', system: 'Stanton', planet: 'Magda', type: 'Avant-poste' },
+                
+                // Stanton - Autres terminaux courants
+                { name: 'Seer\'s Canyon', system: 'Stanton', planet: 'Daymar', type: 'Avant-poste' },
+                { name: 'Terra Mills', system: 'Stanton', planet: 'Cellin', type: 'Avant-poste' },
+                { name: 'Rat\'s Nest', system: 'Stanton', planet: 'Daymar', type: 'Avant-poste' },
+                { name: 'Ashland', system: 'Stanton', planet: 'Daymar', type: 'Avant-poste' },
+                { name: 'Last Landings', system: 'Stanton', planet: 'Daymar', type: 'Avant-poste' },
+                { name: 'Rustville', system: 'Stanton', planet: 'Daymar', type: 'Avant-poste' },
+                { name: 'Fallow Field', system: 'Stanton', planet: 'Daymar', type: 'Avant-poste' },
+                { name: 'The Golden Riviera', system: 'Stanton', planet: 'Daymar', type: 'Avant-poste' },
+                { name: 'Rod\'s Fuel \'N Supplies', system: 'Stanton', planet: 'Daymar', type: 'Avant-poste' },
+                { name: 'Patch City', system: 'Stanton', planet: 'Daymar', type: 'Avant-poste' },
+                { name: 'Gaslight', system: 'Stanton', planet: 'Daymar', type: 'Avant-poste' },
+                { name: 'Endgame', system: 'Stanton', planet: 'Daymar', type: 'Avant-poste' },
+                { name: 'Dudley and Daughters', system: 'Stanton', planet: 'Daymar', type: 'Avant-poste' },
+                { name: 'Starlight Service', system: 'Stanton', planet: 'Daymar', type: 'Avant-poste' },
+                { name: 'TDD Orison', system: 'Stanton', planet: 'Crusader', type: 'Station' },
+                { name: 'TDD Area 18', system: 'Stanton', planet: 'ArcCorp', type: 'Station' },
+                { name: 'TDD New Babbage', system: 'Stanton', planet: 'microTech', type: 'Station' },
+                { name: 'CBD Lorville', system: 'Stanton', planet: 'Hurston', type: 'Station' },
+                { name: 'Reclamation Orinth', system: 'Stanton', planet: 'Daymar', type: 'Avant-poste' },
+                { name: 'CRU-L5 Maintenance', system: 'Stanton', planet: 'Crusader', type: 'Station' },
+                { name: 'Brio\'s Breaker', system: 'Stanton', planet: 'Daymar', type: 'Avant-poste' },
+                { name: 'Samson Son\'s', system: 'Stanton', planet: 'Magda', type: 'Avant-poste' },
+                { name: 'Devlin Scrap', system: 'Stanton', planet: 'Daymar', type: 'Avant-poste' },
+                { name: 'Platinum Tressler', system: 'Stanton', planet: 'microTech', type: 'Station' },
+                { name: 'Rappel', system: 'Stanton', planet: 'Daymar', type: 'Avant-poste' },
+                { name: 'Platinum Bay Terra', system: 'Stanton', planet: 'Cellin', type: 'Avant-poste' },
+                { name: 'Pickers Field', system: 'Stanton', planet: 'Daymar', type: 'Avant-poste' },
+                { name: 'Platinum CRUL5', system: 'Stanton', planet: 'Crusader', type: 'Station' },
+                { name: 'Platinum CRUL4', system: 'Stanton', planet: 'Crusader', type: 'Station' },
+                
                 // Pyro
-                { name: 'Pyro Station Alpha', system: 'Pyro' },
-                { name: 'Ruin Station', system: 'Pyro' },
-                { name: 'Checkmate Station', system: 'Pyro' },
-                { name: 'Shady Glen', system: 'Pyro' },
-                { name: 'Bloom', system: 'Pyro' },
-                { name: 'Terminus', system: 'Pyro' },
-                // Ajoutez d'autres terminaux connus ici
+                { name: 'Pyro Station Alpha', system: 'Pyro', planet: 'Pyro I', type: 'Station' },
+                { name: 'Ruin Station', system: 'Pyro', planet: 'Pyro II', type: 'Station' },
+                { name: 'Checkmate Station', system: 'Pyro', planet: 'Pyro III', type: 'Station' },
+                { name: 'Shady Glen', system: 'Pyro', planet: 'Pyro IV', type: 'Avant-poste' },
+                { name: 'Bloom', system: 'Pyro', planet: 'Pyro V', type: 'Avant-poste' },
+                { name: 'Terminus', system: 'Pyro', planet: 'Pyro VI', type: 'Station' },
+                
+                // Nyx
+                { name: 'Levski', system: 'Nyx', planet: 'Delamar', type: 'Ville' },
+                
+                // Terra
+                { name: 'Terra Prime', system: 'Terra', planet: 'Terra', type: 'Ville' },
+                
+                // Cathcart
+                { name: 'Spider', system: 'Cathcart', planet: 'Cathcart II', type: 'Station' }
             ];
         }
 
@@ -320,11 +367,16 @@
             
             const productLocations = productData
                 .filter(p => p.commodity_name === product.commodity_name)
-                .map(p => ({
-                    name: p.terminal_name,
-                    price: p.price_sell,
-                    system: extractSystemFromTerminalName(p.terminal_name)
-                }));
+                .map(p => {
+                    const details = extractLocationDetails(p.terminal_name);
+                    return {
+                        name: p.terminal_name,
+                        price: p.price_sell,
+                        system: details.system,
+                        planet: details.planet,
+                        type: details.type
+                    };
+                });
 
             // Trier les locations par prix du plus élevé au plus bas
             productLocations.sort((a, b) => b.price - a.price);
@@ -333,8 +385,10 @@
             productLocations.forEach(loc => {
                 const option = document.createElement("option");
                 option.value = loc.name;
-                option.textContent = `${loc.name} (${loc.system}) - ${loc.price.toFixed(2)} UEC`;
+                option.textContent = `${loc.name} (${loc.system} - ${loc.planet} - ${loc.type}) - ${loc.price.toFixed(2)} UEC`;
                 option.dataset.system = loc.system;
+                option.dataset.planet = loc.planet;
+                option.dataset.type = loc.type;
                 sellLocations.appendChild(option);
             });
 
@@ -368,7 +422,7 @@
             const scu = parseFloat(document.getElementById("scu").value.replace(/ /g, '')) || 0;
             const price = parseFloat(document.getElementById("price").value.replace(' UEC', '').replace(/ /g, '')) || 0;
             const sellLocation = document.getElementById("sellLocations").value;
-            const system = extractSystemFromTerminalName(sellLocation);
+            const details = extractLocationDetails(sellLocation);
             const total = scu * price;
 
             if (productName && scu && price && sellLocation) {
@@ -381,14 +435,16 @@
                     <p><strong>Produit :</strong> ${productName}</p>
                     <p><strong>Quantité (SCU) :</strong> ${scu.toLocaleString('fr-FR')}</p>
                     <p><strong>Prix unitaire :</strong> ${price.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} UEC</p>
-                    <p class="system"><strong>Système :</strong> ${system}</p>
-                    <p class="location"><strong>Où vendre :</strong> ${sellLocation}</p>
+                    <p class="system"><strong>Système :</strong> ${details.system}</p>
+                    <p class="system"><strong>Planète :</strong> ${details.planet}</p>
+                    <p class="system"><strong>Type :</strong> ${details.type}</p>
+                    <p class="location"><strong>Location :</strong> ${sellLocation}</p>
                     <p><strong>Total :</strong> ${total.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} UEC</p>
                     <button class="remove-button" onclick="removeProduct(${productId})">Supprimer</button>
                 `;
                 productListElement.appendChild(productItem);
                 
-                productList.push({ id: productId, productName, scu, price, total, sellLocation, system });
+                productList.push({ id: productId, productName, scu, price, total, sellLocation, system: details.system, planet: details.planet, type: details.type });
                 updateFinalTotal();
                 
                 // Réinitialiser les champs
